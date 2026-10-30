@@ -1,0 +1,117 @@
+﻿@using Transactions.Models.ViewModels
+@model BankListViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>@Model.WebsiteTitle Havale</title>
+
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="content-language" content="tr">
+    <meta name="resource-type" content="document">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/v3/styles/banks.css" asp-append-version="true">
+
+</head>
+<body>
+
+    <div class="container py-2">
+        <div class="card bank-card mx-auto">
+            <!-- Logo -->
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                        <path d="M20 4L4 12H36L20 4Z" fill="white" />
+                        <rect x="6" y="12" width="28" height="4" fill="white" />
+                        <rect x="8" y="16" width="4" height="16" fill="white" />
+                        <rect x="18" y="16" width="4" height="16" fill="white" />
+                        <rect x="28" y="16" width="4" height="16" fill="white" />
+                        <rect x="4" y="32" width="32" height="4" fill="white" />
+                    </svg>
+                </div>
+                <h1 class="logo-text">@Model.WebsiteTitle Havale</h1>
+            </div>
+
+            <!-- Content -->
+            <div class="card-body p-4">
+
+                @if (Model.IsError)
+                {
+                    <div id="errorBlock" class="row justify-content-center ">
+                        <div id="errorMessage" class="alert alert-danger text-center fs-8 fw-bold mb-0">
+                            @Model.ErrorMessage
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    if(Model.ShowFastBlock)
+                    {
+                        <div class="fast-section">
+                            <div class="fast-badge">
+                                <svg viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+                                </svg>
+                                Anında Transfer
+                            </div>
+                            <h2 class="fast-title">FAST Havale ile Hızlı İşlem</h2>
+                            <p class="fast-description">
+                                7/24 anında para transferi. Tüm bankalardan hızlı ve güvenli havale işlemi yapın.
+                            </p>
+                            <a href="@Url.Action("Index", "Home", new { transaction = Model.TransactionId, isFast = true }).Replace("/Home/Index", "/")" class="fast-button">
+                                <svg viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" />
+                                </svg>
+                                FAST Havale ile Devam Et
+                            </a>
+                        </div>
+
+                        <div class="divider">
+                            <span>veya bankanızı seçin</span>
+                        </div>
+                    }
+
+                    @* <h3 class="text-center mb-4">Banka Seçiniz</h3> *@
+
+                    <div class="row g-3">
+                        @foreach (var item in Model.Bankalar)
+                        {
+                            <div class="col-12 col-md-4">
+                                <a class="bank-button" href="@Url.Action("Index", "Home", new {transaction=Model.TransactionId,  banka = item.Id }).Replace("/Home/Index", "/")">
+                                    <div class="bank-icon">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                                            <line x1="2" y1="10" x2="22" y2="10"></line>
+                                        </svg>
+                                    </div>
+                                    <span>@item.Baslik</span>
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                }
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

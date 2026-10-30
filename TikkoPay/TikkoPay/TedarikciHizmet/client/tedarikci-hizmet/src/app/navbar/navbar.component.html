@@ -1,0 +1,149 @@
+<nav class="navbar-default navbar-static-side" role="navigation">
+  <div class="sidebar-collapse">
+    <ul class="nav metismenu" id="side-menu">
+      <li class="nav-header">
+        <div class="dropdown profile-element" style="text-align: center">
+          <img alt="image" class="rounded-circle" src="assets/img/profile-icon.png" />
+          <a data-bs-toggle="dropdown" class="dropdown-toggle" style="color: #dfe4ed">
+            <span class="block m-t-xs font-bold">{{ getName() }}</span>
+          </a>
+        </div>
+        <div class="logo-element">+</div>
+      </li>
+
+      <!-- Tedarikçi Menüleri -->
+
+      <li>
+        <a [routerLink]="['/']">
+          <i class="fa fa-diamond active"></i>
+          <span class="nav-label">Ana Sayfa</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-line-chart"></i>
+          <span class="nav-label"> Yatırımlar </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-bekleyen-yatirimlar']">Bekleyen Yatırımlar</a>
+          </li>
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-onayli-yatirimlar']">Onaylı Yatırımlar</a>
+          </li>
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-iptal-yatirimlar']">İptal Edilen Yatırımlar</a>
+          </li>
+        </ul>
+      </li>
+
+      <li routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-money"></i>
+          <span class="nav-label"> Çekimler </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-bekleyen-cekimler']">Bekleyen Çekimler</a>
+          </li>
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-onayli-cekimler']">Onaylı Çekimler</a>
+          </li>
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-iptal-cekimler']">İptal Edilen Çekimler</a>
+          </li>
+        </ul>
+      </li>
+
+      <li routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-line-chart"></i>
+          <span class="nav-label"> Manual Yatırımlar </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-bekleyen-yatirimlar-manual']">Bekleyen Yatırımlar</a>
+          </li>
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-onaylanan-yatirimlar-manual']">Onaylı Yatırımlar</a>
+          </li>
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-iptal-yatirimlar-manual']">İptal Edilen Yatırımlar</a>
+          </li>
+        </ul>
+      </li>
+
+      <li routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-bank"></i>
+          <span class="nav-label"> Banka Hesabı Yönetimi </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active">
+            <a [routerLink]="['/havale-bankalari']">Havale Bankaları</a>
+          </li>
+        </ul>
+      </li>
+      <li routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-users"></i>
+          <span class="nav-label"> Kullanıcı Yönetimi </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-kullanici-yonetimi']">Kullanıcı Yönetimi</a>
+          </li>
+        </ul>
+      </li>
+      <li routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-dollar"></i>
+          <span class="nav-label"> Ödemeler </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-kasaharaketleri-bekleyen']">Bekleyen Ödemeler</a>
+          </li>
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-kasaharaketleri-onaylanan']">Onaylı Ödemeler</a>
+          </li>
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-kasaharaketleri-red']">İptal Edilen Ödemeler</a>
+          </li>
+        </ul>
+      </li>
+
+      <li routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-user"></i>
+          <span class="nav-label"> Mutabakatlar </span>
+          <span class="fa arrow"></span>
+        </a>
+                <ul class="nav nav-second-level">
+          <li routerLinkActive="active">
+            <a [routerLink]="['/tedarikci-mutabakat']">
+              Tedarikçi Mutabakatları
+            </a>
+          </li>
+          
+
+        </ul>
+      </li>
+
+      <li>
+        <a [routerLink]="['profile/changepassword']">
+          <i class="fa fa-key active"></i>
+          <span class="nav-label">Şifre Değiştir</span>
+        </a>
+      </li>
+
+    </ul>
+  </div>
+</nav>

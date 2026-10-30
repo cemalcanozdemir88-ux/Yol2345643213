@@ -1,0 +1,364 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-sm-4">
+    <h2>Tedarikçiler</h2>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/']">Ana Sayfa</a>
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>Tedarikciler</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<button style="display: none" data-toggle="modal" data-target="#tedarikciEkleModal" #tedarikciEkleModalButton>
+  Open Tedarikci Ekle Moda
+</button>
+
+<div class="wrapper wrapper-content">
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Tedarikciler</h5>
+          <div class="ibox-tools">
+            <button *appHasAuthorization="Authorization.TedarikciEkleyebilir" class="btn btn-primary btn-xs"
+              (click)="openTedarikciEkleModal()">
+              Yeni Tedarikci Ekle
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <form>
+            <div class="row">
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="baslik"> Banka Havale </label>
+                  <select id="filterTedarikcilerBankaHavaleFilter" name="filterTedarikcilerBankaHavaleFilter"
+                    [(ngModel)]="tedarikcilerFilter.bankaHavale" (change)="filterChanged()" class="form-control">
+                    <option value="" selected>Tümünü Liste</option>
+                    <option value="true">Aktif</option>
+                    <option value="false">Pasif</option>
+                  </select>
+                </div>
+              </div>
+
+              
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="baslik"> Oto Puan </label>
+                  <select id="filterTedarikcilerOtoPuanFilter" name="filterTedarikcilerOtoPuanFilter"
+                    [(ngModel)]="tedarikcilerFilter.otoPuan" (change)="filterChanged()" class="form-control">
+                    <option value="" selected>Tümünü Liste</option>
+                    <option value="true">Aktif</option>
+                    <option value="false">Pasif</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="baslik"> Durum </label>
+                  <select id="filterTedarikcilerDurumFilter" name="filterTedarikcilerDurumFilter"
+                    [(ngModel)]="tedarikcilerFilter.durum" (change)="filterChanged()" class="form-control">
+                    <option value="" selected>Tümünü Liste</option>
+                    <option value="true">Aktif</option>
+                    <option value="false">Pasif</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="w-100 d-none d-md-block"></div>
+
+                            <div class="col-md-12">
+                <div class="form-group">
+                  <button
+                    style="margin-top: 26px"
+                    class="btn btn-primary"
+                    (click)="filterChanged()"
+                  >
+                    Ara
+                  </button>
+                  <button
+                    style="margin-left: 10px; margin-top: 26px"
+                    class="btn btn-warning"
+                    (click)="
+                      tedarikcilerFilter.bankaHavale = '';
+                      tedarikcilerFilter.otoPuan = '';
+                      tedarikcilerFilter.durum = '';
+                      filterChanged()
+                    "
+                  >
+                    Filtreyi Temizle
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <div class="table-responsive">
+
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Sıra No</th>
+                  <th>Ünvan</th>
+                  <th>Banka Havale</th>
+                  <th>Yatırım Komisyon Oranı</th>
+                  <th>Çekim Komisyon Oranı</th>
+                  <th>Yatırım Puanı</th>
+                  <th>Hesap No Gösterim Sayısı</th>
+                  <th>Fast Hesap Sayısı</th>
+                  <th>Anlık Bakiye</th>
+                  <th>Bakiye Limitör</th>
+                  <th>Oto Puan</th>
+                  <th>Durum</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of tedarikciler; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ item.unvan }}</td>
+                  <td>
+                    <span *ngIf="item.bankaHavale" class="label label-primary">
+                      Aktif
+                    </span>
+
+                    <span *ngIf="!item.bankaHavale" class="label label-danger">
+                      Pasif
+                    </span>
+                  </td>
+                  <td>{{ item.yaririmKomisyonOrani }} %</td>
+                  <td>{{ item.cekimKomisyonOrani }} %</td>
+                  <td>{{ item.yatirimPuani}}</td>
+                  <td>{{ item.hesapNoGosterimSayisi}}</td>
+                  <td>{{ item.fastHesapSayisi}}</td>
+                  <td>{{ item.anlikBakiye | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                  <td>{{ item.bakiyeLimitor | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                  <td>
+                    <span *ngIf="item.otoPuan" class="label label-primary">Aktif</span>
+
+                    <span *ngIf="!item.otoPuan" class="label label-danger">Pasif</span>
+                  </td>
+                  <td>
+                    <span *ngIf="item.durum" class="label label-primary">Aktif</span>
+
+                    <span *ngIf="!item.durum" class="label label-danger">Pasif</span>
+                  </td>
+                  <td>
+                    <button *appHasAuthorization="Authorization.TedarikciDuzenleyebilir"
+                      class="btn-primary btn btn-xs mr-2" (click)="startEdit(item.id)">
+                      Düzenle
+                    </button>
+                  </td>
+                  <td>
+                    <button *appHasAuthorization="Authorization.TedarikciSilebilir" class="btn-danger btn btn-xs"
+                      data-toggle="modal" data-target="#tedarikciSilModal" (click)="startDelete(item.id)">
+                      Sil
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+          </div>
+
+          <hr />
+          <app-pagination [activePage]="activePage" [totalPages]="totalPages"
+            (pageChanged)="getAll($event)"></app-pagination>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal inmodal fade" id="tedarikciSilModal" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h3>Kaydı silmek istediğinize emin misiniz?</h3>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-white" data-dismiss="modal" #tedarikciSilModalKapatButton
+          (click)="cancelDelete()">
+          Kapat
+        </button>
+        <button type="submit" class="btn btn-danger" [disabled]="isDeleting" (click)="deleteRecord()">
+          <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isDeleting"></i>Sil
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal inmodal fade" id="tedarikciEkleModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form (ngSubmit)="submitCreateTedarikciForm(tedarikciForm)" #tedarikciForm="ngForm">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label for="unvan">
+                  Ünvan <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="unvan" name="unvan" required
+                  [(ngModel)]="tedarikciCreateModel.unvan" required />
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label for="yaririmKomisyonOrani">
+                  Yarıım Komisyon Oranı
+                  <span class="text-danger">*</span>
+                </label>
+                <div class="input-group m-b">
+                  <input type="number" class="form-control" id="yaririmKomisyonOrani" name="yaririmKomisyonOrani"
+                    [(ngModel)]="tedarikciCreateModel.yaririmKomisyonOrani" required />
+                  <div class="input-group-append">
+                    <span class="input-group-addon">%</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label for="cekimKomisyonOrani">
+                  Çekim Komisyon Oranı
+                  <span class="text-danger">*</span>
+                </label>
+                <div class="input-group m-b">
+                  <input type="number" class="form-control" id="cekimKomisyonOrani" name="cekimKomisyonOrani"
+                    [(ngModel)]="tedarikciCreateModel.cekimKomisyonOrani" required />
+                  <div class="input-group-append">
+                    <span class="input-group-addon">%</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label for="yatirimPuani">
+                  Yatırım Puanı
+                  <span class="text-danger">*</span>
+                </label>
+                <input type="number" class="form-control" id="yatirimPuani" name="yatirimPuani"
+                  [(ngModel)]="tedarikciCreateModel.yatirimPuani" required />
+
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label for="yatirimPuani">
+                  Hesap No Gösterim Sayısı
+                  <span class="text-danger">*</span>
+                </label>
+                <input type="number" class="form-control" id="hesapNoGosterimSayisi" name="hesapNoGosterimSayisi"
+                  [(ngModel)]="tedarikciCreateModel.hesapNoGosterimSayisi" required />
+
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="baslik">
+                  Bakiye Limitör(TL) <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="tutar" name="tutar" currencyMask
+                  [(ngModel)]="tedarikciCreateModel.bakiyeLimitor" required />
+              </div>
+            </div>
+            <div class="col-sm-2">
+              <div class="form-group">
+                <label for="bankaHavale">Banka Havale</label>
+                <div class="form-check abc-checkbox">
+                  <input class="form-check-input" type="checkbox" id="bankaHavale" name="bankaHavale"
+                    [(ngModel)]="tedarikciCreateModel.bankaHavale" />
+                  <label class="form-check-label" for="bankaHavale">
+                    Aktif
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-2" *appHasAuthorization="Authorization.TedarikciOtoPuanDurumuDegistirebilir">
+              <div class="form-group">
+                <label for="otoPuan">Oto Puan</label>
+                <div class="form-check abc-checkbox">
+                  <input class="form-check-input" type="checkbox" id="otoPuan" name="otoPuan"
+                    [(ngModel)]="tedarikciCreateModel.otoPuan" />
+                  <label class="form-check-label" for="otoPuan"> Aktif </label>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-2">
+              <div class="form-group">
+                <label for="durum">Durum</label>
+                <div class="form-check abc-checkbox">
+                  <input class="form-check-input" type="checkbox" id="durum" name="durum"
+                    [(ngModel)]="tedarikciCreateModel.durum" />
+                  <label class="form-check-label" for="durum"> Aktif </label>
+                </div>
+              </div>
+            </div>
+            <!-- <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="eposta">
+                                    E-Posta <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" class="form-control"
+                                    id="eposta"
+                                    name="eposta"
+                                    [(ngModel)]="tedarikciCreateModel.eposta"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="sifre">
+                                    Şifre <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" class="form-control"
+                                    id="sifre" name="sifre"
+                                    [(ngModel)]="tedarikciCreateModel.sifre"
+                                    required>
+                            </div>
+                        </div> -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-white" #tedarikciEkleModalKapatButton data-dismiss="modal"
+            (click)="closetedarikciEkleModalKapat()">
+            Kapat
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isCreating">
+            <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isCreating"></i>Kaydet
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

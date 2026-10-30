@@ -1,0 +1,507 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-sm-4">
+    <h2>Kasa Haraketleri</h2>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/']">Ana Sayfa</a>
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>Kasa Haraketleri</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<button
+  style="display: none"
+  data-toggle="modal"
+  data-target="#kasaHaraketleriEkleModal"
+  #kasaHaraketleriEkleModalButton>
+  Open Kasa Haraketleri Ekle Moda
+</button>
+
+<div class="wrapper wrapper-content">
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+
+        <div class="ibox-content">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="widget navy-bg">
+                <h3 class="text-white">Toplam Kasa Girişi</h3>
+                <h3 class="m-xs text-white">
+                  {{
+                  kasaGirisCikisToplam(1)
+                  | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                  }}
+                </h3>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="widget red-bg">
+                <h3 class="text-white">Toplam Kasa Çıkışı</h3>
+                <h3 class="m-xs text-white">
+                  {{
+                  kasaGirisCikisToplam(2)
+                  | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                  }}
+                </h3>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="widget lazur-bg" style="filter: saturate(0.5)">
+                <h3 class="text-white">Ara Toplam</h3>
+                <h3 class="m-xs text-white">
+                  {{
+                  kasaGirisCikisToplam(1) - kasaGirisCikisToplam(2)
+                  | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                  }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Kasa Haraketleri</h5>
+
+          <div class="ibox-tools">
+            <button
+              *appHasAuthorization="Authorization.TedarikciKasaHaraketleriEkleyebilir"
+              class="btn btn-primary btn-xs"
+              (click)="openKasaHaraketleriEkleModal()">
+              Yeni Kayıt Ekle
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <form>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="filterTedarikciId"> Tedarikçi </label>
+                  <select
+                    id="filterTedarikciId"
+                    name="filterTedarikciId"
+                    [(ngModel)]="kasaHaraketleriFilter.tedarikciId"
+                    (change)="filterChanged(createdDateStart.value, createdDateEnd.value)"
+                    class="form-control">
+                    <option value>Tümünü Liste</option>
+                    <option
+                      *ngFor="let item of tedarikcilerDronDownModel"
+                      [value]="item.id">
+                      {{ item.unvan }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="form-group">
+                  <label for="durum"> Durum </label>
+                  <select
+                    id="durum"
+                    name="durum"
+                    [(ngModel)]="kasaHaraketleriFilter.durum"
+                    (change)="filterChanged(createdDateStart.value, createdDateEnd.value)"
+                    class="form-control">
+                    <option value>Tümünü Liste</option>
+                    <option [value]="1">Bekliyor</option>
+                    <option [value]="2">Onaylandı</option>
+                    <option [value]="3">Red</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="font-normal">Kayıt Tarihi Başlangıç</label>
+                  <div class="input-group date">
+                    <span class="input-group-addon"><i
+                        class="fa fa-calendar"></i></span>
+                    <input type="text" class="form-control dateControl"
+                      autocomplete="off"
+                      id="createdDateStart" name="createdDateStart"
+                      #createdDateStart>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Kayıt Tarihi Bitiş</label>
+                  <div class="input-group date">
+                    <span class="input-group-addon"><i
+                        class="fa fa-calendar"></i></span>
+                    <input type="text" class="form-control dateControl"
+                      autocomplete="off"
+                      id="createdDateEnd" name="createdDateEnd" #createdDateEnd>
+                  </div>
+                </div>
+              </div>
+
+              <div class="w-100 d-none d-md-block"></div>
+
+              <div class="col-md-12">
+                <div class="form-group">
+                  <button
+                    style="margin-top: 26px;"
+                    class="btn btn-primary "
+                    (click)="filterChanged(createdDateStart.value, createdDateEnd.value)">
+                    Ara
+                  </button>
+                  <button
+                    style="margin-left: 10px; margin-top: 26px;"
+                    class="btn btn-warning "
+                    (click)="kasaHaraketleriFilter.tedarikciId='';kasaHaraketleriFilter.durum=''; createdDateStart.value='';createdDateEnd.value='';filterChanged(createdDateStart.value, createdDateEnd.value)">
+                    Filtreyi Temizle
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="float-right">
+                <button
+                  *appHasAuthorization="Authorization.TedarikciKasaHaraketleriExcelIndirebilir"
+                  class="btn btn-success btn-xs"
+                  (click)="downloadExcel()">
+                  Excel İndir
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class=" table table-striped">
+              <thead>
+                <tr>
+                  <th>Sıra No</th>
+                  <th>Tedarikci</th>
+                  <th>Açıklama</th>
+                  <th>Tutar (TL)</th>
+                  <th>Döviz Kuru</th>
+                  <th>Usdt Miktar</th>
+                  <th>Usdt Adres</th>
+                  <th>Usdt Txt No</th>
+                  <th>İşlem Tipi</th>
+                  <th>Durum</th>
+                  <th>Kaydeden Kullanıcı</th>
+                  <th>Kayıt Tarihi</th>
+                  <th>Güncelleyen Kullanıcı</th>
+                  <th>Güncelleme Tarihi</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of kasaHaraketleriList; let i = index">
+                  <td>{{ (i + ((activePage - 1) *
+                    kasaHaraketleriFilter.recordsPerPage)) + 1 }}</td>
+                  <td>{{ item.tedarikciAdi }}</td>
+                  <td class="text-center"> 
+                    <span title="{{ item.aciklama }}"><i class="fa fa-info-circle" aria-hidden="true"></i></span> 
+                  </td>
+                  <td>
+                    {{
+                    item.tutar | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </td>
+                  <td>{{ item.dovizKuru | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                  <td>{{ item.usdtMiktar | currency : "USD" : "symbol-narrow" : "1.2-2"}}</td>
+                  <td>{{ item.usdtAdres }}</td>
+                  <td> <a target="_blank" href="{{item.usdtTxtNo}}">{{ item.usdtTxtNo | slice:0:20 }}...</a> </td>
+                  <td>
+                    <span *ngIf="item.islemTipi === 1" class="badge badge-primary">
+                      Tedarikçiden Alınan Ödeme
+                    </span>
+                    <span *ngIf="item.islemTipi === 2" class="badge badge-warning">
+                      Tedarikçiye Yapılan Ödeme
+                    </span>
+                  </td>
+                  <td>{{ getDurumText(item.durum) }}</td>
+                  <td>{{ item.kaydedenKullanici }}</td>
+                  <td>
+                    {{ item.kayitTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
+                  </td>
+                  <td>{{ item.guncelleyenKullanici }}</td>
+                  <td>
+                    {{ item.guncellemeTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
+                  </td>
+                  <td class="text-right footable-visible footable-last-column">
+                    <div>
+                      <button
+                        *appHasAuthorization="Authorization.TedarikciKasaHaraketleriDuzenleyebilir"
+                        class="btn-primary btn btn-xs mr-2"
+                        (click)="startEdit(item.id)">
+                        Düzenle
+                      </button>
+                      <!-- <button
+                        class="btn-danger btn btn-xs"
+                        data-toggle="modal"
+                        data-target="#kasaHaraketleriSilModal"
+                        (click)="startDelete(item.id)"
+                      >
+                        Sil
+                      </button> -->
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          
+          <hr />
+          <app-pagination [activePage]="activePage" [totalPages]="totalPages"
+            (pageChanged)="getAll($event)"></app-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal inmodal fade"
+  id="kasaHaraketleriSilModal"
+  role="dialog"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h3>Kaydı silmek istediğinize emin misiniz?</h3>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-white"
+          data-dismiss="modal"
+          #kasaHaraketleriSilModalKapatButton
+          (click)="cancelDelete()">
+          Kapat
+        </button>
+        <button
+          type="submit"
+          class="btn btn-danger"
+          [disabled]="isDeleting"
+          (click)="deleteRecord()">
+          <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isDeleting"></i>Sil
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal inmodal fade"
+  id="kasaHaraketleriEkleModal"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form
+        (ngSubmit)="submitCreateKasaHaraketleriForm(kasaHaraketleriForm)"
+        #kasaHaraketleriForm="ngForm">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="baslik">
+                  Tedarikçi <span class="text-danger">*</span>
+                </label>
+                <select
+                  id="tedarikciId"
+                  name="tedarikciId"
+                  [(ngModel)]="kasaHaraketleriCreateModel.tedarikciId"
+                  required
+                  class="form-control">
+                  <option value disabled selected>Tedarikçi Seçin</option>
+                  <option
+                    *ngFor="let item of tedarikcilerDronDownModel"
+                    [value]="item.id">
+                    {{ item.unvan }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="baslik">
+                  İşlem Tipi <span class="text-danger">*</span>
+                </label>
+                <select
+                  id="islemTipi"
+                  name="islemTipi"
+                  [(ngModel)]="kasaHaraketleriCreateModel.islemTipi"
+                  required
+                  class="form-control">
+                  <option [value]="1">Tedarikçiden Alınan Ödeme</option>
+                  <option [value]="2">Tedarikçiye Yapılan Ödeme</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="baslik">
+                  Tutar(TL) <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="tutar"
+                  name="tutar"
+                  currencyMask
+                  [(ngModel)]="kasaHaraketleriCreateModel.tutar"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="baslik">
+                  Döviz Kuru <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="dovizKuru"
+                  name="dovizKuru"
+                  currencyMask
+                  [options]="{ prefix: 'TRY '}"
+                  [(ngModel)]="kasaHaraketleriCreateModel.dovizKuru"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="baslik">
+                  Usdt Miktar <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="usdtMiktar"
+                  name="usdtMiktar"
+                  currencyMask
+                  [options]="{ prefix: '$ ' }"
+                  [(ngModel)]="kasaHaraketleriCreateModel.usdtMiktar"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Usdt Adres <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="usdtAdres"
+                  name="usdtAdres"
+                  [(ngModel)]="kasaHaraketleriCreateModel.usdtAdres"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Usdt Txt No <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="usdtTxtNo"
+                  name="usdtTxtNo"
+                  [(ngModel)]="kasaHaraketleriCreateModel.usdtTxtNo"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Resim Url <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="resimUrl"
+                  name="resimUrl"
+                  [(ngModel)]="kasaHaraketleriCreateModel.resimUrl"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Açıklama <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="aciklama"
+                  name="aciklama"
+                  [(ngModel)]="kasaHaraketleriCreateModel.aciklama"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Durum <span class="text-danger">*</span>
+                </label>
+                <select
+                  id="durum"
+                  name="durum"
+                  [(ngModel)]="kasaHaraketleriCreateModel.durum"
+                  required
+                  class="form-control">
+                  <option [value]="1">Bekliyor</option>
+                  <option [value]="2">Onaylandı</option>
+                  <option [value]="3">Red</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-white"
+            #kasaHaraketleriEkleModalKapatButton
+            data-dismiss="modal"
+            (click)="closeKasaHaraketleriEkleModalKapat()">
+            Kapat
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isCreating">
+            <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isCreating"></i>Kaydet
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

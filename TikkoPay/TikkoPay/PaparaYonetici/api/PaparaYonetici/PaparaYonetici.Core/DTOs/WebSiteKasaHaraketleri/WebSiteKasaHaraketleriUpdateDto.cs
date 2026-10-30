@@ -1,0 +1,19 @@
+﻿using PaparaYonetici.Core.Enums;
+
+namespace PaparaYonetici.Core.DTOs.WebSiteKasaHaraketleri
+{
+    public class WebSiteKasaHaraketleriUpdateDto
+    {
+        public Guid Id { get; set; }
+        public Guid WebSitesiId { get; set; }
+        public string Aciklama { get; set; }
+        public decimal Tutar { get; set; }
+        public decimal DovizKuru { get; set; }
+        public decimal UsdtMiktar { get; set; }
+        public string UsdtAdres { get; set; }
+        public string UsdtTxtNo { get; set; }
+        public string ResimUrl { get; set; }
+        public Durum Durum { get; set; }
+        public int IslemTipi { get; set; }
+    }
+}

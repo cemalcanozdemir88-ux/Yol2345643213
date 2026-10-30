@@ -1,0 +1,298 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-sm-4">
+      <h2>Bekleyen Ödemeler</h2>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">Ana Sayfa</a>
+        </li>
+        <li class="breadcrumb-item active">
+          <strong>Bekleyen Ödemeler</strong>
+        </li>
+      </ol>
+    </div>
+  </div>
+  
+  <button
+    style="display: none"
+    data-toggle="modal"
+    data-target="#kasaHaraketleriEkleModal"
+    #kasaHaraketleriEkleModalButton>
+    Open Kasa Haraketleri Ekle Moda
+  </button>
+  
+  <div class="wrapper wrapper-content">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="ibox">
+          <div class="ibox-title">
+            <h5>Kasa Haraketleri</h5>
+            <div class="ibox-tools">
+              <button
+                class="btn btn-primary btn-xs"
+                (click)="openKasaHaraketleriEkleModal()">
+                Yeni Kayıt Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="ibox">
+          <div class="ibox-content">
+  
+            <div class="row">
+              <div class="col-md-12">
+                <div class="float-right">
+                  <button
+                    class="btn btn-success btn-xs"
+                    (click)="downloadExcel()">
+                    Excel İndir
+                  </button>
+                </div>
+              </div>
+            </div>
+  
+
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Sıra No</th>
+                    <th>Tedarikci</th>
+                    <th>Açıklama</th>
+                    <th>Tutar</th>
+                    <th>Döviz Kuru</th>
+                    <th>Usdt Miktar</th>
+                    <th>Usdt Adres</th>
+                    <th>Usdt Txt No</th>
+                    <th>Resim Url</th>
+                    <th>İşlem Tipi</th>
+                    <th>Kaydeden Kullanıcı</th>
+                    <th>Kayıt Tarihi</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of kasaHaraketleriList; let i = index">
+                    <td>{{ (i + ((activePage - 1) *
+                      kasaHaraketleriFilter.recordsPerPage)) + 1 }}</td>
+                    <td>{{ item.tedarikciAdi }}</td>
+                    <td>{{ item.aciklama }}</td>
+                    <td>{{ item.tutar | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                    <td>{{ item.dovizKuru | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                    <td>{{ item.usdtMiktar | currency : "USD" : "symbol-narrow" : "1.2-2"}}</td>
+                    <td>{{ item.usdtAdres }}</td>
+                    <td><a href="{{ item.usdtTxtNo }}" target="_blank">tronscan</a></td>
+                    <td><a href="{{ item.resimUrl }}" target="_blank">resim</a></td>
+                    <td>{{ item.islemTipi === 1 ? "Giriş" : "Çıkış" }}</td>
+                    <td>{{ item.kaydedenKullanici }}</td>
+                    <td>
+                      {{ item.kayitTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
+                    </td>
+                    <td class="text-right footable-visible footable-last-column">
+                      <div>
+                        <button
+                          class="btn-danger btn btn-xs"
+                          data-toggle="modal"
+                          data-target="#kasaHaraketleriSilModal"
+                          (click)="startDelete(item.id)">
+                          Sil
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+           
+            <hr />
+            <app-pagination [activePage]="activePage" [totalPages]="totalPages"
+              (pageChanged)="getAll($event)"></app-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div
+    class="modal inmodal fade"
+    id="kasaHaraketleriSilModal"
+    role="dialog"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h3>Kaydı silmek istediğinize emin misiniz?</h3>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-white"
+            data-dismiss="modal"
+            #kasaHaraketleriSilModalKapatButton
+            (click)="cancelDelete()">
+            Kapat
+          </button>
+          <button
+            type="submit"
+            class="btn btn-danger"
+            [disabled]="isDeleting"
+            (click)="deleteRecord()">
+            <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isDeleting"></i>Sil
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div
+    class="modal inmodal fade"
+    id="kasaHaraketleriEkleModal"
+    tabindex="-1"
+    role="dialog"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form
+          (ngSubmit)="submitCreateKasaHaraketleriForm(kasaHaraketleriForm)"
+          #kasaHaraketleriForm="ngForm">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="baslik">
+                    İşlem Tipi <span class="text-danger">*</span>
+                  </label>
+                  <select
+                    id="islemTipi"
+                    name="islemTipi"
+                    [(ngModel)]="kasaHaraketleriCreateModel.islemTipi"
+                    disabled="true"
+                    required
+                    class="form-control">
+                    <option [value]="1">Giriş</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="baslik">
+                    Tutar <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="tutar"
+                    name="tutar"
+                    [(ngModel)]="kasaHaraketleriCreateModel.tutar"
+                    required />
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="baslik">
+                    Döviz Kuru <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="dovizKuru"
+                    name="dovizKuru"
+                    [(ngModel)]="kasaHaraketleriCreateModel.dovizKuru"
+                    required />
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="baslik">
+                    Usdt Miktar <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="usdtMiktar"
+                    name="usdtMiktar"
+                    [(ngModel)]="kasaHaraketleriCreateModel.usdtMiktar"
+                    required />
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="baslik">
+                    Usdt Adres <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="usdtAdres"
+                    name="usdtAdres"
+                    [(ngModel)]="kasaHaraketleriCreateModel.usdtAdres"
+                    required />
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="baslik">
+                    Usdt Txt No <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="usdtTxtNo"
+                    name="usdtTxtNo"
+                    [(ngModel)]="kasaHaraketleriCreateModel.usdtTxtNo"
+                    required />
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="baslik">
+                    Rsim Url <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="resimUrl"
+                    name="resimUrl"
+                    [(ngModel)]="kasaHaraketleriCreateModel.resimUrl"
+                    required />
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="baslik">
+                    Açıklama
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="aciklama"
+                    name="aciklama"
+                    [(ngModel)]="kasaHaraketleriCreateModel.aciklama"
+                     />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-white"
+              #kasaHaraketleriEkleModalKapatButton
+              data-dismiss="modal"
+              (click)="closeKasaHaraketleriEkleModalKapat()">
+              Kapat
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="isCreating">
+              <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isCreating"></i>Kaydet
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  

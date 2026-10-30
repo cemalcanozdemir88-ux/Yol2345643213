@@ -1,0 +1,586 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Documentation</title>
+    <link rel="stylesheet" href="~/v1/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style type="text/css">
+        code {
+            display: block;
+            overflow-x: auto;
+            padding: 0.5em;
+            color: #333;
+            background: #f8f8f8;
+        }
+
+        .hljs-comment, .hljs-quote {
+            color: #998;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body class="py-4">
+
+    <main>
+
+        <div class="container">
+            <h1 class="text-center">API Documentation</h1>
+
+            <section>
+                <h4>TIKKOPAY - PAYMENT SOLUTIONS</h4>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-6 col-lg-4">
+                        <ul class="list-unstyled">
+                            <li><strong>Version:</strong> 1.0</li>
+                        </ul>
+                    </div>
+                    <div class="col-sm-6 col-lg-4">
+                        <ul class="list-unstyled">
+                            <li><strong class="font-weight-700">Created:</strong> 20 December, 2023</li>
+                            <li><strong>Update:</strong> 20 January, 2024</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr />
+
+            <h3><strong>ENDPOINT URL</strong></h3>
+
+           @*  <p><span class="text-danger font-weight-bold">https://transactions-dev.tikkopay.com</span> - Dev Server</p> *@
+            <p class="lead">Please perform your <b>LIVE</b> operations on this API endpoint.</p>
+            <p><span class="text-danger font-weight-bold">https://transactions.tikkopay.com</span> - Live Server</p>
+
+            <hr />
+
+            @* <p><strong>Client Id</strong>: <span class="text-danger">5eY3ZO6WsWE3xqT4ljXNtzzS0bPKG95i</span></p>
+
+            <p><strong>Client Secret</strong>: <span class="text-danger">tfJEyNlPVs1CgfUp5fQwQORuZUiLiIiiOrN2tBxwppYQPJwTL49MCy7nD4epHidn</span></p>
+
+            <hr /> *@
+
+
+            <h3><strong>Deposit Method</strong></h3>
+
+            <p><strong>Method: </strong><span class="text-danger">POST</span></p>
+
+           @*  <p><strong>Deposit Endpoint - DEV</strong> <span class="text-danger">https://transactions-dev.tikkopay.com/api/Deposit</span></p> *@
+            <p><strong>Deposit Endpoint - LIVE</strong> <span class="text-danger">https://transactions.tikkopay.com/api/Deposit</span></p>
+
+            
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td><strong>Parameter</strong></td>
+                        <td><strong>Required</strong></td>
+                        <td><strong>Type</strong></td>
+                        <td><strong>Description</strong></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>ClientId</p>
+                        </td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Your client id</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>ClientSecret</p>
+                        </td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Your client secret</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>UserName</p>
+                        </td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Customer&#39;s username</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>UserId</p>
+                        </td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Customer&#39;s unique identifier</td>
+                    </tr>
+                    <tr>
+                        <td>FullName</td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Customer&#39;s full name</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Deposit amount in a valid currency format (Example: 100)</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>TransactionId</p>
+                        </td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Transaction Id must be unique</td>
+                    </tr>
+                    <tr>
+                        <td>Hash</td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Transaction hash: sha1(TransactionId+UserId+ClientId+ClientSecret)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            
+            <p><strong>Response</strong></p>
+            <pre>
+            <code>
+    {
+        "success": true,
+        "message": "The payment form was created successfully.", 
+        "paymentFrameUrl": "https://transactions.tikkopay.com?transaction=8aac300f-b001-47e3-848c-7e6f0d7ab5b5"
+    }
+                  </code>
+                </pre>
+
+           @*  <img src="~/images/deposit.jpg" class="img-fluid" alt="deposit"> *@
+
+            <hr />
+            <h3><strong>Withdraw Method</strong></h3>
+
+            <p><strong>Method: </strong><span class="text-danger">POST</span></p>
+
+            @*   <p><strong>Withdraw Endpoint - DEV : </strong> <span class="text-danger">https://transactions-dev.tikkopay.com/api/Withdraw</span></p> *@
+            <p><strong>Withdraw Endpoint - LIVE : </strong> <span class="text-danger">https://transactions.tikkopay.com/api/Withdraw</span></p>
+
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td><strong>Parameter</strong></td>
+                        <td><strong>Required</strong></td>
+                        <td><strong>Type</strong></td>
+                        <td><strong>Description</strong></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>ClientId</p>
+                        </td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Your client id</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>ClientSecret</p>
+                        </td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Your client secret</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>UserName</p>
+                        </td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Customer&#39;s username</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>UserId</p>
+                        </td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Customer&#39;s unique identifier</td>
+                    </tr>
+                    <tr>
+                        <td>FullName</td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Customer&#39;s full name</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>TransactionId</p>
+                        </td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Transaction Id must be unique</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Withdrawal amount in a valid currency format (Example: 100.00)</td>
+                    </tr>
+                    <tr>
+                        <td>Iban</td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Customer&#39;s IBAN number</td>
+                    </tr>
+                    <tr>
+                        <td>Hash</td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Transaction hash: sha1(TransactionId+UserId+ClientId+ClientSecret)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Response</strong></p>
+
+<pre>
+            <code>
+    {
+        "success": true,
+        "message": "Withdraw request was successfully processed."
+    }
+                  </code>
+                </pre>
+
+           
+           @*  <img src="~/images/withdraw.jpg" class="img-fluid" alt="deposit"> *@
+
+            <hr />
+
+            <h3><strong>CheckTransactionStatus Method</strong></h3>
+
+            <p><strong>Method: </strong><span class="text-danger">POST</span></p>
+
+            @*    <p><strong>CheckTransactionStatus Endpoint - DEV : </strong> <span class="text-danger">https://transactions-dev.tikkopay.com/api/Transaction/Check</span></p> *@
+            <p><strong>CheckTransactionStatus Endpoint - LIVE : </strong> <span class="text-danger">https://transactions.tikkopay.com/api/Transaction/Check</span></p>
+
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td><strong>Parameter</strong></td>
+                        <td><strong>Required</strong></td>
+                        <td><strong>Type</strong></td>
+                        <td><strong>Description</strong></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>ClientId</p>
+                        </td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Your client id</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>ClientSecret</p>
+                        </td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Your client secret</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>TransactionId</p>
+                        </td>
+                        <td class="text-danger">required</td>
+                        <td>String</td>
+                        <td>Transaction Id must be unique</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Response</strong></p>
+
+<pre>
+            <code>
+    {
+        "success": true,
+        "transactionId": "Transaction ID here",
+        "message": "Transaction status" Pending, Approved, Rejected
+    }
+                  </code>
+                </pre>
+
+
+           @*  <img src="~/images/checktransaction.jpg" class="img-fluid" alt="deposit"> *@
+
+            <hr />
+            <h3><strong>Deposit Result Callback Method</strong></h3>
+            <p>
+                This documentation describes how to handle callback requests sent by the <span class="text-danger">sendDepositResultCallback</span> function in your service.
+            </p>
+
+            <p><strong>Method: </strong><span class="text-danger">POST</span></p>
+
+            <p><strong>Deposit Result Callback Endpoint : </strong> <span class="text-danger">{PARTNER_SITE_ENDPOINT}</span></p>
+
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td><strong>Parameter</strong></td>
+                        <td><strong>Type</strong></td>
+                        <td><strong>Description</strong></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>userID</p>
+                        </td>
+                        <td>String</td>
+                        <td>User's ID in the site</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>username</p>
+                        </td>
+                        <td>String</td>
+                        <td>User's username</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>name</p>
+                        </td>
+                        <td>String</td>
+                        <td>User's name</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>amount</p>
+                        </td>
+                        <td>Numeric</td>
+                        <td>Transaction amount</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>verifiedAmount</p>
+                        </td>
+                        <td>Numeric</td>
+                        <td>Verified transaction amount</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>transaction_id</p>
+                        </td>
+                        <td>String</td>
+                        <td>Unique transaction ID</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>status</p>
+                        </td>
+                        <td>Integer</td>
+                        <td>Transaction status (e.g., 1: Pending 2: Approved 3: Rejected)</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>type</p>
+                        </td>
+                        <td>String</td>
+                        <td>Transaction type ('Deposit')</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>payment_method_id</p>
+                        </td>
+                        <td>String</td>
+                        <td>Payment method ID used in the transaction</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>hash</p>
+                        </td>
+                        <td>String</td>
+                        <td>SHA1 hash for transaction validation</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h5>Validating the Transaction</h5>
+            <p>
+                To validate the request, calculate the <span class="text-danger">hash</span> using the following formula and compare it with the received
+            </p>
+            <pre>
+                <code>
+    hash = sha1(transaction_id + userID + status + type)
+                </code>
+            </pre>
+
+            <p>
+                If the calculated hash does not match the received one, the request should not be processed.
+            </p>
+            <h5>Response</h5>
+            <p>
+                Upon successful completion of the callback processing, your system should return a response in the following JSON format:
+            </p>
+            <pre>
+                <code>
+    {
+        "success": true,
+        "message": "The process was completed successfully"
+    }
+                </code>
+            </pre>
+
+            <hr />
+            <h3><strong>Withdraw Result Callback Method</strong></h3>
+            <p>
+                This documentation describes how to handle callback requests sent by the <span class="text-danger">sendWithdrawResultCallback</span> function in your service.
+            </p>
+            <p><strong>Method: </strong><span class="text-danger">POST</span></p>
+
+            <p><strong>Withdraw Result Callback Endpoint : </strong> <span class="text-danger">{PARTNER_SITE_ENDPOINT}</span></p>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td><strong>Parameter</strong></td>
+                        <td><strong>Type</strong></td>
+                        <td><strong>Description</strong></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>userID</p>
+                        </td>
+                        <td>String</td>
+                        <td>User's ID in the site</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>username</p>
+                        </td>
+                        <td>String</td>
+                        <td>User's username</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>name</p>
+                        </td>
+                        <td>String</td>
+                        <td>User's name</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>amount</p>
+                        </td>
+                        <td>Numeric</td>
+                        <td>Transaction amount</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>verifiedAmount</p>
+                        </td>
+                        <td>Numeric</td>
+                        <td>Verified transaction amount</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>transaction_id</p>
+                        </td>
+                        <td>String</td>
+                        <td>Unique transaction ID</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>description</p>
+                        </td>
+                        <td>String</td>
+                        <td>Description about transaction</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>status</p>
+                        </td>
+                        <td>Integer</td>
+                        <td>Transaction status (e.g., 1: Pending 2: Approved 3: Rejected)</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>type</p>
+                        </td>
+                        <td>String</td>
+                        <td>Transaction type ('Withdrawal')</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>payment_method_id</p>
+                        </td>
+                        <td>String</td>
+                        <td>Payment method ID used in the transaction</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <p>hash</p>
+                        </td>
+                        <td>String</td>
+                        <td>SHA1 hash for transaction validation</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h5>Validating the Transaction</h5>
+            <p>
+                To validate the request, calculate the <span class="text-danger">hash</span> using the following formula and compare it with the received
+            </p>
+            <pre>
+            <code>
+    hash = sha1(transaction_id + userID + status + type)
+                </code>
+            </pre>
+
+            <p>
+                If the calculated hash does not match the received one, the request should not be processed.
+            </p>
+            <h5>Response</h5>
+            <p>
+                Upon successful completion of the callback processing, your system should return a response in the following JSON format:
+            </p>
+            <pre>
+            <code>
+    {
+        "success": true,
+        "message": "The process was completed successfully"
+    }
+                </code>
+            </pre>
+
+            <hr />
+
+            <h3><strong>Hash Calculation Example</strong></h3>
+            <p>An example of how the <span class="text-danger">hash</span> is encrypted:</p>
+
+            <pre>
+                <code>
+                    
+    <span class="hljs-comment">// PHP code to calculate hash</span>
+    $transaction_id = <span>uniqid()</span>; <span class="hljs-comment">// Generating a unique transaction ID</span>
+    $userID = <span class="text-danger">'YOUR_USER_ID'</span>; <span class="hljs-comment">// Replace with the actual user ID</span>
+    $client_id = <span class="text-danger">'YOUR_CLIENT_ID'</span>; <span class="hljs-comment">// Replace with your actual client ID</span>
+    $client_secret = <span class="text-danger">'YOUR_CLIENT_SECRET'</span>; <span class="hljs-comment">// Replace with your actual client secret</span>
+
+    $hash = sha1($transaction_id . $userID . $client_id  . client_secret);
+
+    <span class="hljs-keyword">echo</span> $hash;
+                    
+                </code>
+            </pre>
+
+            
+
+        </div>
+
+
+
+
+    </main>
+
+
+
+</body>
+</html>

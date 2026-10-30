@@ -1,0 +1,329 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-sm-4">
+    <h2>Ana Safa</h2>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item active">
+        <strong>Ana Sayfa</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="wrapper wrapper-content" *appHasAuthorization="
+Authorization.AnaSayfaHesapOzetiGorebilir
+">
+  <div class="row">
+
+    <div class="col-lg-4">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Yatırımlar <span class="label label-warning float-right">Günlük</span></h5> 
+        </div>
+        <div class="ibox-content">
+          <div class="row">
+            <div class="col-lg-12">
+              <ul class="stat-list">
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      yatirimToplamTutar | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Yatırım</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      yatirimWebsiteToplamKomisyon
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Website Komisyon</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      yatirimTedarikciToplamKomisyon
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Tedarikçi Komisyon</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      yatirimToplamKazanc
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Kazanç</small>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Yatırımlar <span class="label label-primary float-right">Önceki Kapanış</span></h5> 
+        </div>
+        <div class="ibox-content">
+          <div class="row">
+            <div class="col-lg-12">
+              <ul class="stat-list">
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      yatirimToplamTutarYesterday | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Yatırım</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      yatirimWebsiteToplamKomisyonYesterday
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Website Komisyon</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      yatirimTedarikciToplamKomisyonYesterday
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Tedarikçi Komisyon</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      yatirimToplamKazancYesterday
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Kazanç</small>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Yatırımlar <span class="label label-success float-right">Aylık</span></h5> 
+        </div>
+        <div class="ibox-content">
+          <div class="row">
+            <div class="col-lg-12">
+              <ul class="stat-list">
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      yatirimToplamTutarMonth | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Yatırım</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      yatirimWebsiteToplamKomisyonMonth
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Website Komisyon</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      yatirimTedarikciToplamKomisyonMonth
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Tedarikçi Komisyon</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      yatirimToplamKazancMonth
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Kazanç</small>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="row">
+
+    <div class="col-lg-4">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Çekimler <span class="label label-warning float-right">Günlük</span></h5> 
+        </div>
+        <div class="ibox-content">
+          <div class="row">
+            <div class="col-lg-12">
+              <ul class="stat-list">
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      cekimToplamTutar | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Çekim</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      cekimWebsiteToplamKomisyon
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Website Komisyon</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      cekimTedarikciToplamKomisyon
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Tedarikçi Komisyon</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      cekimToplamKazanc
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Kazanç</small>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Çekimler <span class="label label-primary float-right">Önceki Kapanış</span></h5> 
+        </div>
+        <div class="ibox-content">
+          <div class="row">
+            <div class="col-lg-12">
+              <ul class="stat-list">
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      cekimToplamTutarYesterday | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Çekim</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      cekimWebsiteToplamKomisyonYesterday
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Website Komisyon</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      cekimTedarikciToplamKomisyonYesterday
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Tedarikçi Komisyon</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      cekimToplamKazancYesterday
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Kazanç</small>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Çekimler <span class="label label-success float-right">Aylık</span></h5> 
+        </div>
+        <div class="ibox-content">
+          <div class="row">
+            <div class="col-lg-12">
+              <ul class="stat-list">
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      cekimToplamTutarMonth | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Çekim</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      cekimWebsiteToplamKomisyonMonth
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Website Komisyon</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      cekimTedarikciToplamKomisyonMonth
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Tedarikçi Komisyon</small>
+                </li>
+                <li>
+                  <h2 class="no-margins">
+                    {{
+                      cekimToplamKazancMonth
+                        | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </h2>
+                  <small>Toplam Kazanç</small>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

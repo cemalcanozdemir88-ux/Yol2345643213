@@ -1,0 +1,1 @@
+export const RecordsPerPage: number = 25;

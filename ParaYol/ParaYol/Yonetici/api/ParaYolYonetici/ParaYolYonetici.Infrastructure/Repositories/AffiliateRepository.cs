@@ -1,0 +1,91 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using ParaYolYonetici.Core.DTOs.Affiliate;
+using ParaYolYonetici.Core.Interfaces;
+using ParaYolYonetici.Core.Models;
+
+namespace ParaYolYonetici.Infrastructure.Repositories
+{
+    public class AffiliateRepository : GenericRepository<Affiliates>, IAffiliateRepository
+    {
+        private readonly DbSet<Affiliates> _dbSet;
+        private readonly DbSet<YatirimCekimTalepleri> _dbSetYatirimTaleperi;
+        private readonly DbSet<WebSiteleri> _dbSetWebSiteleri;
+
+        public AffiliateRepository(AppDbContext context, IHttpContextAccessor httpContextAccessor) : base(context, httpContextAccessor)
+        {
+            _dbSet = _dbContext.Set<Affiliates>();
+            _dbSetYatirimTaleperi = _dbContext.Set<YatirimCekimTalepleri>();
+            _dbSetWebSiteleri = _dbContext.Set<WebSiteleri>();
+        }
+
+        public async Task<List<AffiliateDto>> GetAllAsync(Guid? affiliateId)
+        {
+            var query = _dbSet.Where(k => k.SilindiMi == false);
+            if (affiliateId.HasValue)
+            {
+                query = query.Where(k => k.Id == affiliateId.Value);
+            }
+
+            query = query.OrderBy(k => k.Unvan);
+
+            return await query.Select(k => new AffiliateDto
+            {
+                Id = k.Id,
+                Unvan = k.Unvan,
+                CekimKomisyonOrani = k.CekimKomisyonOrani,
+                YaririmKomisyonOrani = k.YaririmKomisyonOrani
+            }).ToListAsync();
+        }
+
+        public async Task<List<AffiliateBakiyeListDto>> GetBakiyeList(Guid? affiliateId, Guid? websiteId)
+        {
+            var query = _dbSet.Where(k => k.SilindiMi == false);
+            if (affiliateId.HasValue)
+            {
+                query = query.Where(k => k.Id == affiliateId.Value);
+            }
+
+            var bakiyeList = await query.Select(k => new AffiliateBakiyeListDto
+            {
+                Id = k.Id,
+                Unvan = k.Unvan,
+                YaririmKomisyonOrani = k.YaririmKomisyonOrani,
+                CekimKomisyonOrani = k.CekimKomisyonOrani,
+                ToplamYatirim = _dbSetYatirimTaleperi
+                                .Where(y => y.WebSiteleri.AffiliateId == k.Id &&
+                                            (!websiteId.HasValue || y.WebSiteId == websiteId.Value) &&
+                                            y.Durum == Core.Enums.Durum.Onaylandi &&
+                                            y.IslemTipi == Core.Enums.IslemTip.Deposit &&
+                                            y.SilindiMi == false)
+                                .Sum(k => k.Tutar),
+
+                ToplamYatirimKomisyon = _dbSetYatirimTaleperi.Include(k => k.WebSiteleri)
+                                        .Where(y => y.WebSiteleri.AffiliateId == k.Id &&
+                                            (!websiteId.HasValue || y.WebSiteId == websiteId.Value) &&
+                                            y.Durum == Core.Enums.Durum.Onaylandi &&
+                                            y.IslemTipi == Core.Enums.IslemTip.Deposit &&
+                                            y.SilindiMi == false)
+                                        .Sum(k => k.Tutar * (decimal)(k.WebSiteleri.AffiliateYaririmKomisyonOrani! / 100)),
+
+                ToplamCekim = _dbSetYatirimTaleperi
+                                .Where(y => y.WebSiteleri.AffiliateId == k.Id &&
+                                            (!websiteId.HasValue || y.WebSiteId == websiteId.Value) &&
+                                            y.Durum == Core.Enums.Durum.Onaylandi &&
+                                            y.IslemTipi == Core.Enums.IslemTip.Withdraw &&
+                                            y.SilindiMi == false)
+                                .Sum(k => k.Tutar),
+                ToplamCekimKomisyon = _dbSetYatirimTaleperi.Include(k => k.WebSiteleri)
+                                        .Where(y => y.WebSiteleri.AffiliateId == k.Id &&
+                                                    (!websiteId.HasValue || y.WebSiteId == websiteId.Value) &&
+                                                    y.Durum == Core.Enums.Durum.Onaylandi &&
+                                                    y.IslemTipi == Core.Enums.IslemTip.Withdraw &&
+                                                    y.SilindiMi == false)
+                                        .Sum(k => k.Tutar * (decimal)(k.WebSiteleri.AffiliateCekimKomisyonOrani! / 100)),
+
+            }).ToListAsync();
+
+            return bakiyeList;
+        }
+    }
+}

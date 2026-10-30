@@ -1,0 +1,45 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using TedarikciHizmet.Core.Interfaces;
+using TedarikciHizmet.Core.Models;
+
+namespace TedarikciHizmet.Infrastructure.Repositories
+{
+    public class KullaniciOtpValuesRepository : IKullaniciOtpValuesRepository
+    {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly AppDbContext _dbContext;
+        private readonly DbSet<KullaniciOtpValues> _dbSet;
+
+        public KullaniciOtpValuesRepository(IHttpContextAccessor httpContextAccessor, AppDbContext dbContext)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            _dbContext = dbContext;
+            _dbSet = _dbContext.Set<KullaniciOtpValues>();
+        }
+
+        public async Task<KullaniciOtpValues> GetById(Guid Id)
+        {
+            return await _dbSet.FindAsync(Id);
+        }
+
+        public async Task<Guid> Add(Guid KullaniciId)
+        {
+            var item = new KullaniciOtpValues
+            {
+                Id = Guid.NewGuid(),
+                KullaniciId = KullaniciId,
+                SilindiMi = false,
+                KayitTarihi = DateTime.Now
+            };
+
+            var itemsToRemove = _dbSet.Where(k => k.KullaniciId == KullaniciId).ToList();
+            _dbSet.RemoveRange(itemsToRemove);
+
+            _dbSet.Add(item);
+            await _dbContext.SaveChangesAsync();
+
+            return item.Id;
+        }
+    }
+}

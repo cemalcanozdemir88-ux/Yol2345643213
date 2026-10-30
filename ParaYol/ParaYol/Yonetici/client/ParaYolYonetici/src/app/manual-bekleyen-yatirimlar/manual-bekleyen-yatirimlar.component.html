@@ -1,0 +1,184 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-sm-4">
+    <h2>Manual Bekleyen Yatırımlar</h2>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/']">Ana Sayfa</a>
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>Manual Bekleyen Yatırımlar</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="wrapper wrapper-content">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <form>
+            <div class="row">
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="baslik"> Arama </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="filterSearchText"
+                    name="filterSearchText"
+                    [(ngModel)]="filterModel.searchText"
+                    (keydown.enter)="filterChanged(createdDateStart.value, createdDateEnd.value)"
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="font-normal">Kayıt Tarihi Başlangıç</label>
+                  <div class="input-group date">
+                    <span class="input-group-addon"
+                      ><i class="fa fa-calendar"></i
+                    ></span>
+                    <input
+                      type="text"
+                      class="form-control dateControl"
+                      autocomplete="off"
+                      id="createdDateStart"
+                      name="createdDateStart"
+                      [(ngModel)]="filterModel.createdDateStart"
+                      #createdDateStart
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Kayıt Tarihi Bitiş</label>
+                  <div class="input-group date">
+                    <span class="input-group-addon"
+                      ><i class="fa fa-calendar"></i
+                    ></span>
+                    <input
+                      type="text"
+                      class="form-control dateControl"
+                      autocomplete="off"
+                      id="createdDateEnd"
+                      name="createdDateEnd"
+                      #createdDateEnd
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="w-100 d-none d-md-block"></div>
+
+              <div class="col-md-12">
+                <div class="form-group">
+                  <button
+                    style="margin-top: 26px"
+                    class="btn btn-primary"
+                    (click)="
+                      filterChanged(
+                        createdDateStart.value,
+                        createdDateEnd.value
+                      )
+                    "
+                  >
+                    Ara
+                  </button>
+                  <button
+                    style="margin-left: 10px; margin-top: 26px"
+                    class="btn btn-warning"
+                    (click)="
+                      filterModel.tedarikciId = '';
+                      filterModel.bankaId = '';
+                      filterModel.searchText = '';
+                      createdDateStart.value = '';
+                      createdDateEnd.value = '';
+                      filterChanged(
+                        createdDateStart.value,
+                        createdDateEnd.value
+                      )
+                    "
+                  >
+                    Filtreyi Temizle
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Talep No</th>
+                  <th>Web Site</th>
+                  <th>UserId</th>
+                  <th>UserName</th>
+                  <th>Üye Ad Soyad</th>  
+                  <th >Hesap Sahibi</th>
+                  <th >Hesap No</th>
+                  <th>Tutar</th>
+                  <th>Kayıt Tarihi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of yatirimTalepleri; let i = index">
+                  <td>
+                    {{ i + (activePage - 1) * filterModel.recordsPerPage + 1 }}
+                  </td>
+                  <td>{{ item.talepNoWithFormated }}</td>
+                 
+                  <td>
+                    {{ item.webSiteUrl }} 
+                    <span *ngIf="item.paymentMethodId === 1" class="label label-warning float-right">{{item.paymentMethodId}}</span>
+                    <span *ngIf="item.paymentMethodId === 2" class="label label-primary float-right">{{item.paymentMethodId}}</span>
+                  </td>
+                  <td>{{ item.userId }}</td>
+                  <td>{{ item.userName }}</td>
+                  <td>{{ item.adSoyad }}</td> 
+                  <td>{{ item.hesapSahibi }}</td>
+                  <td>{{ item.hesapNo }}</td>
+                  <td>
+                    {{
+                      item.tutar | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </td>
+                  <td>
+                    {{ item.kayitTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
+                  </td>
+                  
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          
+          <hr />
+          <app-pagination
+            [activePage]="activePage"
+            [totalPages]="totalPages"
+            (pageChanged)="getAll($event)"
+          ></app-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+</div>

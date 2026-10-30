@@ -1,0 +1,352 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-sm-4">
+    <h2>Web Siteleri</h2>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/']">Ana Sayfa</a>
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>Web Siteleri</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<button
+  style="display: none"
+  data-toggle="modal"
+  data-target="#webSitesiEkleModal"
+  #webSiteEkleModalButton
+>
+  Open Web Sitesi Ekle Moda
+</button>
+
+<div class="wrapper wrapper-content">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Web Siteleri</h5>
+          <div class="ibox-tools">
+            <button
+              *appHasAuthorization="Authorization.WebSitesiEkleyebilir"
+              class="btn btn-primary btn-xs"
+              (click)="openWebSiteEkleModal()"
+            >
+              Yeni Web Sitesi Ekle
+            </button>
+          </div>
+        </div>
+        <div class="ibox-content">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Sıra No</th>
+                  <th>Web Sitesi</th>
+                  <th>Yatırım Komisyon Oranı</th>
+                  <th>Çekim Komisyon Oranı</th>
+                  <th>Odeme Komisyon Oranı</th>
+                  <th>Affiliate</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of webSiteleri; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ item.webSiteUrl }}</td>
+                  <td>{{ item.yaririmKomisyonOrani }}</td>
+                  <td>{{ item.cekimKomisyonOrani }}</td>
+                  <td>{{ item.odemeKomisyonOrani }}</td>
+                  <td>{{ item.affiliateUnvan }}</td>
+                  <td class="text-right footable-visible footable-last-column">
+                    <div>
+                      <button
+                        *appHasAuthorization="
+                          Authorization.WebSitesiDuzenleyebilir
+                        "
+                        class="btn-primary btn btn-xs mr-2"
+                        (click)="startEdit(item.id)"
+                      >
+                        Düzenle
+                      </button>
+                      <button
+                        *appHasAuthorization="Authorization.WebSitesiSilebilir"
+                        class="btn-danger btn btn-xs"
+                        data-toggle="modal"
+                        data-target="#webSiteSilModal"
+                        (click)="startDelete(item.id)"
+                      >
+                        Sil
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal inmodal fade"
+  id="webSiteSilModal"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h3>Kaydı silmek istediğinize emin misiniz?</h3>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-white"
+          data-dismiss="modal"
+          #webSiteSilModalKapatButton
+          (click)="cancelDelete()"
+        >
+          Kapat
+        </button>
+        <button
+          type="submit"
+          class="btn btn-danger"
+          [disabled]="isDeleting"
+          (click)="deleteRecord()"
+        >
+          <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isDeleting"></i>Sil
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal inmodal fade"
+  id="webSitesiEkleModal"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form
+        (ngSubmit)="submitCreateWebSiteForm(webSiteForm)"
+        #webSiteForm="ngForm"
+      >
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label for="webSiteUrl">
+                  Web Site Url <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="webSiteUrl"
+                  name="webSiteUrl"
+                  required
+                  [(ngModel)]="webSiteleriCreateModel.webSiteUrl"
+                  required
+                />
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="tedarikciId">
+                  Affiliate
+                </label>
+                <select
+                  id="affiliateId"
+                  name="affiliateId"
+                  [(ngModel)]="webSiteleriCreateModel.affiliateId"
+                  class="form-control"
+                >
+                  <option value disabled selected>Affiliate Seçin</option>
+                  <option
+                    *ngFor="let item of affiliateDronDownModel"
+                    [value]="item.id"
+                  >
+                    {{ item.unvan }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label for="yaririmKomisyonOrani">
+                  Yarıım Komisyon Oranı
+                  <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="yaririmKomisyonOrani"
+                  name="yaririmKomisyonOrani"
+                  [(ngModel)]="webSiteleriCreateModel.yaririmKomisyonOrani"
+                  required
+                />
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label for="cekimKomisyonOrani">
+                  Çekim Komisyon Oranı
+                  <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="cekimKomisyonOrani"
+                  name="cekimKomisyonOrani"
+                  [(ngModel)]="webSiteleriCreateModel.cekimKomisyonOrani"
+                  required
+                />
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <label for="cekimKomisyonOrani">
+                  Ödeme Komisyon Oranı
+                  <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="odemeKomisyonOrani"
+                  name="odemeKomisyonOrani"
+                  [(ngModel)]="webSiteleriCreateModel.odemeKomisyonOrani"
+                  required
+                />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="kullaniciTipi">
+                  Website Tipi <span class="text-danger">*</span>
+                </label>
+
+                <select
+                  id="type"
+                  name="type"
+                  [(ngModel)]="webSiteleriCreateModel.type"
+                  required
+                  class="form-control"
+                >
+                  <option value="1">Betco</option>
+                  <option value="2">Pronet</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label for="apiClientId">
+                  Api Client Id <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="apiClientId"
+                    name="apiClientId"
+                    required
+                    [(ngModel)]="webSiteleriCreateModel.apiClientId"
+                    required
+                  />
+                  <div class="input-group-append">
+                    <button 
+                      type="button" 
+                      class="btn btn-primary" 
+                      (click)="generateApiClientId()"
+                    >
+                      Oluştur
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label for="apiClientSecret">
+                  Api Secret Id <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="apiClientSecret"
+                    name="apiClientSecret"
+                    required
+                    [(ngModel)]="webSiteleriCreateModel.apiClientSecret"
+                    required
+                  />
+                  <div class="input-group-append">
+                    <button 
+                      type="button" 
+                      class="btn btn-primary" 
+                      (click)="generateApiSecretId()"
+                    >
+                      Oluştur
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label for="depositCallbackUrl">
+                  Deposit Callback Url <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="depositCallbackUrl"
+                  name="depositCallbackUrl"
+                  required
+                  [(ngModel)]="webSiteleriCreateModel.depositCallbackUrl"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="col-sm-12">
+              <div class="form-group">
+                <label for="withdrawCallbackUrl">
+                  Withdraw Callback Url <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="withdrawCallbackUrl"
+                  name="withdrawCallbackUrl"
+                  required
+                  [(ngModel)]="webSiteleriCreateModel.withdrawCallbackUrl"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-white"
+            #webSiteEkleModalKapatButton
+            data-dismiss="modal"
+            (click)="closeWebSiteEkleModalKapat()"
+          >
+            Kapat
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isCreating">
+            <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isCreating"></i>Kaydet
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

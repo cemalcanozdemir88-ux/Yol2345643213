@@ -1,0 +1,9 @@
+<div id="wrapper">
+  <app-navbar *ngIf="isLogged()"></app-navbar>
+
+  <div id="page-wrapper" [ngClass]="isLogged() ? 'gray-bg' : ''">
+    <app-header *ngIf="isLogged()"> </app-header>
+
+    <router-outlet></router-outlet>
+  </div>
+</div>

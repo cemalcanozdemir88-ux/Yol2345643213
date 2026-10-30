@@ -1,0 +1,11 @@
+export interface KullanicilarUpdateDto {
+    id: string;
+    tedarikciId?: string | null;
+    webSiteId?: string | null;
+    affiliateId?: string | null;
+    adSoyad: string;
+    eposta: string;
+    sifre: string;
+    kullaniciTipi: number;
+    durum: boolean
+}

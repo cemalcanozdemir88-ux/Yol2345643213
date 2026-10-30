@@ -1,0 +1,198 @@
+<nav class="navbar-default navbar-static-side" role="navigation">
+  <div class="sidebar-collapse">
+    <ul class="nav metismenu" id="side-menu">
+      <li class="nav-header">
+        <div class="dropdown profile-element" style="text-align: center">
+          <img
+            alt="image"
+            class="rounded-circle"
+            src="assets/img/profile-icon.png" />
+          <a
+            data-bs-toggle="dropdown"
+            class="dropdown-toggle"
+            style="color: #dfe4ed">
+            <span class="block m-t-xs font-bold">{{ getName() }}</span>
+          </a>
+        </div>
+        <div class="logo-element">+</div>
+      </li>
+      <li *ngIf="isAdmin()">
+        <a [routerLink]="['/']">
+          <i class="fa fa-home active"></i>
+          <span class="nav-label">Ana Sayfa</span>
+        </a>
+      </li>
+
+      <li
+        *ngIf="isAdmin() && userHasAnyOfAuthorization([Authorization.TedarikciKasaHaraketleriGorebilir, Authorization.TedarikciBakiyeGorebilir])"
+        routerLinkActive="active">
+        <a href="javascript:void(0)"><i class="fa fa-money"></i>
+          <span class="nav-label">Kasa Yönetimi</span>
+          <span class="fa arrow"></span></a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.TedarikciKasaHaraketleriGorebilir)">
+            <a [routerLink]="['/kasaharaketleri']">Tedarikçi
+              Kasa Hareketleri</a>
+          </li>
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.TedarikciBakiyeGorebilir)">
+            <a [routerLink]="['/tedarikci-bakiye']">Tedarikçi Bakiye</a>
+          </li>
+        </ul>
+      </li>
+
+      <li
+        *ngIf="(isAdmin() || isWebSiteKullanicisi()) && userHasAnyOfAuthorization([Authorization.BekleyenYatirimlarGorebilir, Authorization.OnayliYatirimlarGorebilir, Authorization.IptalEdilenYatirimlarGorebilir])"
+        routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-line-chart"></i>
+          <span class="nav-label"> Yatırımlar </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.BekleyenYatirimlarGorebilir)">
+            <a [routerLink]="['/bekleyenyatirimlar']">Bekleyen Yatırımlar</a>
+          </li>
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.OnayliYatirimlarGorebilir)">
+            <a [routerLink]="['/onayliyatirimlar']">Onaylı Yatırımlar</a>
+          </li>
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.IptalEdilenYatirimlarGorebilir)">
+            <a [routerLink]="['/iptalyatirimtalepleri']">İptal Edilen
+              Yatırımlar</a>
+          </li>
+        </ul>
+      </li>
+
+      <li
+        *ngIf="(isAdmin() || isWebSiteKullanicisi()) && userHasAnyOfAuthorization([Authorization.BekleyenCekimlerGorebilir, Authorization.OnayliCekimlerGorebilir, Authorization.IptalEdilenCekimlerGorebilir])"
+        routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-money"></i>
+          <span class="nav-label"> Çekimler </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.BekleyenCekimlerGorebilir)">
+            <a [routerLink]="['/bekleyencekimler']">Bekleyen Çekimler</a>
+          </li>
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.OnayliCekimlerGorebilir)">
+            <a [routerLink]="['/onaylicekimler']">Onaylı Çekimler</a>
+          </li>
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.IptalEdilenCekimlerGorebilir)">
+            <a [routerLink]="['/iptalcekimtalepleri']">İptal Edilen Çekimler</a>
+          </li>
+        </ul>
+      </li>
+
+      <li
+        *ngIf="isAdmin() && userHasAnyOfAuthorization([Authorization.BankaTanimlariGorebilir, Authorization.HavaleBankalariGorebilir])"
+        routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-university"></i>
+          <span class="nav-label"> Banka Yönetimi </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.BankaTanimlariGorebilir)">
+            <a [routerLink]="['/bankalar']">Banka Tanımları</a>
+          </li>
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.HavaleBankalariGorebilir)">
+            <a [routerLink]="['/havalebankalari']">Havale Bankaları</a>
+          </li>
+        </ul>
+      </li>
+
+      <li
+        *ngIf="isAdmin() && userHasAnyOfAuthorization([Authorization.TedarikciTanimlariGorebilir])"
+        routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-truck"></i>
+          <span class="nav-label"> Tedarikci Yönetimi </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.TedarikciTanimlariGorebilir)">
+            <a [routerLink]="['/tedarikci']"> Tedarikci Tanımları </a>
+          </li>
+
+        </ul>
+      </li>
+
+      <li
+        *ngIf="(isAdmin() || isWebSiteKullanicisi()) && userHasAnyOfAuthorization([Authorization.SiteKasaHaraketleriGorebilir, Authorization.SiteTanimlariGorebilir, Authorization.SiteBakiyeGorebilir])"
+        routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-globe"></i>
+          <span class="nav-label"> Site Yönetimi </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.SiteKasaHaraketleriGorebilir)">
+            <a [routerLink]="['/kasaharaketlerisite']">Site Kasa Hareketleri</a>
+          </li>
+          <li routerLinkActive="active"
+            *ngIf="isAdmin() && userHasAuthorization(Authorization.SiteTanimlariGorebilir)">
+            <a [routerLink]="['/webSiteleri']"> Site Tanımları </a>
+          </li>
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.SiteBakiyeGorebilir)">
+            <a [routerLink]="['/website-bakiye']"> Site Bakiye </a>
+          </li>
+        </ul>
+      </li>
+
+      <li *ngIf="(isAdmin() || isAffiliateKullanicisi()) && userHasAnyOfAuthorization([Authorization.AffiliateTanimlariGorebilir, Authorization.AffiliateBakiyeGorebilir])" routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-handshake-o"></i>
+          <span class="nav-label"> Affiliate Yönetimi </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active" *ngIf="userHasAuthorization(Authorization.AffiliateTanimlariGorebilir)">
+            <a [routerLink]="['/affiliates']">Affiliate Tanımları</a>
+          </li>
+          <li routerLinkActive="active" *ngIf="userHasAuthorization(Authorization.AffiliateBakiyeGorebilir)">
+            <a [routerLink]="['/affiliate-bakiye']"> Affiliate Bakiye </a>
+          </li>
+        </ul>
+      </li>
+
+      <li
+        *ngIf="(isAdmin() || isWebSiteKullanicisi()) && userHasAnyOfAuthorization([Authorization.KullaniciTanimlariGorebilir])"
+        routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-user"></i>
+          <span class="nav-label"> Kullanıcı Yönetimi </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active"
+            *ngIf="userHasAuthorization(Authorization.KullaniciTanimlariGorebilir)">
+            <a [routerLink]="['/kullanicilar']">
+              Kullanici Tanımları
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <li>
+        <a [routerLink]="['profile/changepassword']">
+          <i class="fa fa-key active"></i>
+          <span class="nav-label">Şifre Değiştir</span>
+        </a>
+      </li>
+
+    </ul>
+  </div>
+</nav>

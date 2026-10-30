@@ -1,0 +1,292 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>TikkoPay Havale</title>
+
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="content-language" content="tr"> 
+    <meta name="resource-type" content="document">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800&amp;subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese" rel="stylesheet">
+
+    <link href="~/v2/assets/js/bootstrap/css/bootstrap.min.css" rel="stylesheet" asp-append-version="true">
+    <link href="~/v2/assets/css/style.min.css" rel="stylesheet" asp-append-version="true">
+    <link href="~/v2/assets/css/custom.css" rel="stylesheet" asp-append-version="true">
+
+    <script src="~/v2/assets/js/jquery-3.5.1.min.js"></script>
+    <script src="~/v2/assets/js/sweetalert2.min.js"></script>
+
+    <script src="~/v2/assets/js/jquery.priceformat.min.js"></script>
+    <script src="~/v2/assets/js/jquery.mask.min.js"></script>
+    <script src="~/v2/assets/js/clipboard.min.js"></script>
+
+    <style>
+        .btn-outline-primary {
+            color: rgba(13, 110, 253, .25) !important;
+            border-color: #0a58ca !important;
+        }
+
+        .form-control:disabled, .form-control[readonly] {
+            background-color: #ffffff;
+            opacity: 1;
+        }
+
+        .form-float .form-label {
+            z-index: 10;
+        }
+
+        .amntPrefix {
+            right: 58px !important;
+            z-index: 10;
+        }
+    </style>
+
+</head>
+<body style="max-height:900px;">
+
+    <div class="loading page-laoding" id="loader">
+        <div>
+            <span class="loader"></span>
+            <div class="text mt-5">İşleminiz yapılıyor, lütfen bekleyiniz.</div>
+        </div>
+    </div>
+
+    <div class="container-fluid container-xxl">
+        <div class="row d-flex flex-column min-vh-100 justify-content-center align-items-center">
+            <div class="col-12">
+                <div class="cards apscard">
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-xs-12 text-center">
+                                <img src="~/v2/assets/images/tikkopay-havale-v2.png" class="mw-100 mb-2" height="64" alt="TikkoPay">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" id="divMainContent">
+                        <div id="errorBlock" class="row justify-content-center ">
+                            <div id="errorMessage" class="alert alert-danger text-center fs-8 fw-bold mb-0">
+                            </div>
+                        </div>
+                        <div id="formBlock" class="row justify-content-center">
+                            <div class="col-md-6">
+                                <div class="mt-1">
+                                    <form>
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" id="havaleBankId" name="havaleBankId" />
+                                        <p class="fs-5 fw-bold text-center" style="color: #0a58ca;">Transferi Yapacağınız Banka IBAN Bilgileri</p>
+
+                                        <div class="mt-2 form-float input-group">
+                                            <label for="txtAmount" class="required form-label mb-3">Yatırım Tutarı</label>
+                                            <input type="text" id="txtAmount" name="txtAmount" readonly class="customAmnt form-control form-control-solid text-end money2" value="" autocomplete="off" placeholder="0,00" />
+                                            <span class="amntPrefix" for="txtAmount">TL</span>
+                                            <button class="btn btn-outline-primary clipboard" data-clipboard-target="#txtAmount" type="button" id="copyAmount">
+                                                <img src="~/v2/assets/images/copy-btn.png" class="mw-100" height="25" alt="Tutar Kopyala">
+                                            </button>
+                                        </div>
+
+                                        <div class="mt-2 form-float input-group">
+                                            <label for="accountName" class="required form-label mb-3">Hesap Adi</label>
+                                            <input type="text" id="accountName" name="accountName" readonly class="form-control form-control-solid text-end" value="" autocomplete="off" />
+                                            <button class="btn btn-outline-primary clipboard" data-clipboard-target="#accountName" type="button" id="copyAccountName">
+                                                <img src="~/v2/assets/images/copy-btn.png" class="mw-100" height="25" alt="Hesap Adi Kopyala">
+                                            </button>
+                                        </div>
+
+                                        <div class="mt-2 form-float input-group">
+                                            <label for="accountNumber" class="required form-label mb-3">IBAN Numarasi</label>
+                                            <input type="text" id="accountNumber" name="accountNumber" readonly class="form-control form-control-solid text-end" value="" autocomplete="off" />
+                                            <button class="btn btn-outline-primary clipboard" data-clipboard-target="#accountNumber" type="button" id="copyaccountNumber">
+                                                <img src="~/v2/assets/images/copy-btn.png" class="mw-100" height="25" alt="Hesap No Kopyala">
+                                            </button>
+                                        </div>
+
+                                        <div class="mt-2">
+                                            <span>Kalan Sure: <b id="timeOut" style="color:red;">00:00</b></span>
+                                        </div>
+
+                                        <div class="mt-2">
+                                            <button type="button" style="width:100%" class="btn btn-info text-white fs-8 fw-bold p-2 px-3 btnPaparaYatirimiYaptim" onclick="CompleteTransaction()">YATIRIM YAPTIM</button>
+                                        </div>
+
+                                    </form>
+
+                                </div>
+                            </div>
+                            <div class="col-md-12 mt-3">
+                                <div class="alert alert-havale text-dark fs-8 fw-bold mb-0">
+                                    <ul class="mt-2 p-0 mb-0" style="margin-left:15px; list-style: initial;">
+                                        <li class="text-danger">Kendi adınıza ait banka hesabından para yatırma işlemi gerçekleştiriniz.</li>
+                                        <li class="text-danger">Tek seferde maksimum 1.000.000,00 TL yatırabilirsiniz.</li>
+                                        <li class="text-danger">Sayfada gösterilen IBAN numarası tek kullanımlıktır, yatırım sayfasını açıp yeni IBAN almadan para yatırmayınız.</li>
+                                        <li>Yatırımınız yukarıda belirtilen tutarda olmalıdır.</li>
+                                        <li>Yatırımınızdan sonra bankanızın araması durumunda para transferine onay vermeniz gerekmektedir. Aksi halde yatırımınız iptal edilecektir.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div id="successBlock" style="display:none;">
+                            <center>
+                                <div class="o-circle c-container__circle o-circle__sign--success">
+                                    <div class="o-circle__sign"></div>
+                                </div>
+                                
+                                <div class="alert alert-havale">
+                                    <div>
+                                        <p class="fw-bold">
+                                            Yatırım talebiniz başarıyla oluşturulmuştur. Kontrollerin
+                                            ardından yatırımınız üyeliğinize yansıyacaktır.
+                                        </p>
+                                        <p>
+                                            <span id="countdown" class="text-danger fw-bold"></span> Saniye sonra siteye yönlendirileceksiniz. Lütfen Bekleyiniz.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                
+                                
+                            </center>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/v2/assets/js/jquery.main.js"></script>
+
+
+    <script type="text/javascript">
+
+        var seconds = 10;
+        var redirectUrl = "";
+
+        $(document).ready(function () {
+            $("#countdown").text(seconds);
+            new ClipboardJS('.clipboard');
+
+            GetValidBankAccount();
+        });
+
+        function CompleteTransaction() {
+            $("#loader").hide();
+            $("#formBlock").hide();
+            $("#successBlock").show();
+
+            Redirect();
+
+            return false;
+        }
+
+        function Redirect() {
+
+            var countdownElement = document.getElementById("countdown");
+
+            var timer = setInterval(function () {
+                seconds--;
+                countdownElement.innerHTML = seconds;
+                if (seconds <= 1) {
+                    clearInterval(timer);
+                    location.href = redirectUrl;
+                }
+            }, 1000);
+        }
+
+        function GetValidBankAccount() {
+            var transactionId = "@Context.Request.Query["transaction"]";
+            var bankaId = "@Context.Request.Query["banka"]";
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            var dataToSend = {
+                transactionId: transactionId,
+                bankaId: bankaId
+            };
+
+            $.ajax({
+                url: '@Url.Action("GetValidBankAccount", "Home")',
+                type: 'POST',
+                contentType: 'application/json',
+                headers: { 'RequestVerificationToken': token },
+                data: JSON.stringify(dataToSend),
+                success: function (response) {
+                    if (!response.status) {
+                        $("#loader").hide();
+                        $("#formBlock").hide();
+
+                        $("#errorMessage").empty().text(response.message);
+                        $("#errorBlock").show();
+                    }
+                    else {
+
+                        $("#havaleBankId").val(response.model.id);
+                        $("#txtAmount").val(response.model.amount);
+                        $("#accountName").val(response.model.hesapSahibi);
+                        $("#accountNumber").val(response.model.hesapNo);
+
+                        redirectUrl = response.model.webSiteUrl;
+
+                        var sayac = JSON.parse(response.model.timeLeft);
+                        $("#timeOut").html(convertStoMs(sayac));
+                        setTimer(sayac);
+                        
+                        $("#errorBlock").hide();
+                        $("#loader").hide();
+                        $("#formBlock").show();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $("#loader").hide();
+                    $("#formBlock").hide();
+
+                    $("#errorMessage").empty().text("Hata oluştu!. Bir süre sonra tekrar deneyiniz.");
+                    $("#errorBlock").show();
+                }
+            })
+        }
+
+        function setTimer(sayac) {
+            var geriSayac = setInterval(function () {
+                sayac--; 
+
+                if (sayac <= 0) {
+                    clearInterval(geriSayac);
+
+                    $("#loader").hide();
+                    $("#formBlock").hide();
+
+                    $("#errorMessage").empty().text("İşlem zaman aşımına uğradı!");
+                    $("#errorBlock").show();
+
+                } else {
+                    $("#timeOut").html(convertStoMs(sayac)); 
+                }
+            }, 1000);
+        }
+
+        function convertStoMs(seconds) {
+            let minutes = ~~(seconds / 60);
+            let extraSeconds = Math.floor(seconds % 60);
+            let minutesText = minutes < 10 ? "0" + minutes : minutes;
+            let extraSecondsText = extraSeconds < 10 ? "0" + extraSeconds : extraSeconds;
+            return minutesText + " : " + extraSecondsText;
+        }
+
+    </script>
+
+</body>
+</html>

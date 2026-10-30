@@ -1,0 +1,146 @@
+/* Custom styles to complement Bootstrap */
+:root {
+    --primary-color: #f97316;
+    --primary-hover: #ea580c;
+    --bg-light: #fff7ed;
+    --text-primary: #c2410c;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fff7ed, #ffedd5);
+}
+
+/* Card customization */
+.payment-card {
+    max-width: 450px;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+/* Logo styling */
+.logo-container {
+    background: var(--primary-color);
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.logo-icon {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.375rem;
+    border-radius: 50%;
+    color: #ffffff;
+    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .logo-icon svg {
+        width: 24px;
+        height: 24px;
+        stroke: #ffffff;
+        fill: none;
+    }
+
+.logo-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+/* Welcome section */
+.welcome-section {
+    background-color: var(--bg-light);
+    padding: 1rem;
+    margin: 0;
+    border-bottom: 1px solid rgba(249, 115, 22, 0.1);
+}
+
+.customer-name {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Amount styling */
+.amount {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 2rem;
+}
+
+/* Input groups */
+.input-group-custom {
+    border: 1px solid #fed7aa;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+    .input-group-custom .form-control {
+        background-color: var(--bg-light);
+        border: none;
+        padding: 0.75rem 1rem;
+    }
+
+    .input-group-custom .btn {
+        border: none;
+        background-color: var(--bg-light);
+        color: var(--text-primary);
+        padding: 0.75rem;
+    }
+
+        .input-group-custom .btn:hover {
+            background-color: #ffedd5;
+        }
+
+/* Payment button */
+.btn-primary {
+    background: var(--primary-color);
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 1rem;
+}
+
+    .btn-primary:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 15px -3px rgba(249, 115, 22, 0.3);
+    }
+
+/* Timer styling */
+.timer-container {
+    background-color: var(--bg-light);
+    border-radius: 0.5rem;
+}
+
+.timer-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Alert customization */
+.alert-warning {
+    background-color: var(--bg-light);
+    border-color: #fed7aa;
+    color: var(--text-primary);
+}
+
+/* Copy button icon */
+.copy-icon {
+    stroke: var(--text-primary);
+}
+
+/* Monospace font for IBAN */
+.font-monospace {
+    font-family: 'JetBrains Mono', monospace !important;
+}

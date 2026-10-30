@@ -1,0 +1,9 @@
+﻿using TedarikciHizmet.Core.Models;
+
+namespace TedarikciHizmet.Core.Interfaces
+{
+    public interface IKullaniciLoginRepository
+    {
+        Task AddAsync(KullaniciLogin entity);
+    }
+}

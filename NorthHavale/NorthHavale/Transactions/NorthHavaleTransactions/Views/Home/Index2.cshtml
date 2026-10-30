@@ -1,0 +1,521 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>@ViewBag.WebsiteTitle Havale</title>
+
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="content-language" content="tr">
+    <meta name="resource-type" content="document">
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                primary: {
+                  DEFAULT: '#4299E1',
+                  light: '#EBF8FF',
+                  dark: '#3182CE'
+                },
+                secondary: {
+                  DEFAULT: '#F9FAFB',
+                  light: '#ffffff',
+                  dark: '#F3F4F6'
+                }
+              },
+              animation: {
+                'fade-in': 'fadeIn 0.5s ease-out',
+                'slide-up': 'slideUp 0.5s ease-out',
+                'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              },
+              keyframes: {
+                fadeIn: {
+                  '0%': { opacity: '0' },
+                  '100%': { opacity: '1' },
+                },
+                slideUp: {
+                  '0%': { transform: 'translateY(20px)', opacity: '0' },
+                  '100%': { transform: 'translateY(0)', opacity: '1' },
+                }
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f7f9fc;
+        }
+
+        .countdown {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .copy-btn {
+            transition: all 0.2s ease;
+        }
+
+            .copy-btn:hover {
+                transform: scale(1.05);
+                background-color: rgba(66, 153, 225, 0.1);
+            }
+
+        .payment-card {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-radius: 16px;
+        }
+
+        .payment-amount {
+            background: linear-gradient(135deg, #4299E1 0%, #3182CE 100%);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px -4px rgba(66, 153, 225, 0.3);
+        }
+
+        .copy-animation {
+            animation: copyFade 1.5s ease;
+        }
+
+        @@keyframes copyFade {
+            0%, 100% {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            20%, 80% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .timer-circle {
+            background: conic-gradient(#4299E1 var(--progress), #EBF8FF var(--progress));
+        }
+
+        .timer-warning {
+            animation: pulse 1.5s infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .copy-btn-icon {
+            transition: all 0.3s ease;
+        }
+
+        .copy-success {
+            animation: successPulse 0.3s ease;
+        }
+
+        @@keyframes successPulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .loading-spinner {
+            border-radius: 50%;
+            width: 3rem;
+            height: 3rem;
+            border: 0.25rem solid rgba(66, 153, 225, 0.3);
+            border-top-color: #4299E1;
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
+
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-sky-50">
+    <!-- Loading Screen (Initially Visible) -->
+    <div id="loadingScreen" class="payment-card max-w-md w-full bg-white p-8 text-center animate-fade-in">
+        <div class="flex flex-col items-center justify-center space-y-6">
+            <div class="loading-spinner"></div>
+            <h2 class="text-xl font-semibold text-gray-800">
+                Hesap bilgileri yükleniyor lütfen bekleyiniz
+            </h2>
+            <p class="text-sm text-gray-500">
+                Bu işlem birkaç dakika sürebilir, lütfen sayfayı kapatmayınız.
+            </p>
+        </div>
+    </div>
+
+    <div id="errorScreen" class="payment-card max-w-md w-full bg-white p-8 text-center animate-fade-in hidden">
+
+        <div class="flex flex-col items-center justify-center space-y-6">
+            <div class="mx-auto w-24 h-24 rounded-full bg-red-100 flex items-center justify-center mb-6">
+                <i class="fas fa-circle-exclamation text-4xl text-red-500"></i>
+            </div>
+
+            <h2 class="text-2xl font-bold text-gray-800 mb-3">Hata!</h2>
+            <p class="text-gray-600 mb-8" id="errorMessage"></p>
+
+        </div>
+
+    </div>
+
+    <!-- Main Container (Initially Hidden) -->
+    <div id="mainContent" class="payment-card max-w-md w-full bg-white overflow-hidden animate-fade-in hidden">
+        <!-- Payment Info Section -->
+        <div id="paymentInfoSection" class="animate-slide-up">
+            <!-- Header with user info and countdown -->
+            <div class="flex items-center justify-between p-6 border-b">
+                <div>
+                    <div class="flex items-center mb-1">
+                        <h1 class="text-xl font-semibold text-gray-800">@ViewBag.WebsiteTitle Havale</h1>
+                    </div>
+                    <div class="text-xs text-gray-600">
+                        Hoş geldiniz <span class="font-medium text-gray-800" id="fullName"></span>
+                    </div>
+                    <div class="text-xs text-gray-600">
+                        Kullanıcı adı <span class="font-medium text-gray-800" id="username"></span>
+                    </div>
+                </div>
+
+                <!-- Countdown Timer in Circle -->
+                <div class="relative">
+                    <div id="timerCircle" class="timer-circle w-16 h-16 rounded-full flex items-center justify-center" style="--progress: 100%">
+                        <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center">
+                            <div id="countdown" class="countdown font-semibold text-primary">20:00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 pb-3">
+
+                <form>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="havaleBankId" name="havaleBankId" />
+
+                    <!-- Payment Amount (Highlighted) -->
+                    <div class="payment-amount p-6 mb-6 text-center">
+                        <p class="text-blue-100 text-sm mb-1">Yatırım Tutarı</p>
+                        <p class="text-white text-4xl font-bold" id="amount-value"></p>
+                    </div>
+
+                    <div class="space-y-4 mb-6">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Hesap Adı</label>
+                            <div class="relative">
+                                <div class="flex items-center border border-gray-200 bg-secondary rounded-lg p-3">
+                                    <span id="accountName" class="flex-grow text-gray-800"></span>
+                                    <a href="#" class="copy-btn p-2 rounded-md ml-2 text-primary">
+                                        <i class="copy-btn-icon far fa-copy"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">IBAN</label>
+                            <div class="relative">
+                                <div class="flex items-center border border-gray-200 bg-secondary rounded-lg p-3">
+                                    <span id="ibanNumber" class="flex-grow text-gray-800"></span>
+                                    <a href="#" class="copy-btn p-2 rounded-md ml-2 text-primary">
+                                        <i class="copy-btn-icon far fa-copy"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="paymentCompleteBtn" class="w-full bg-primary hover:bg-primary-dark text-white font-semibold py-4 px-6 rounded-xl transition duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 shadow-lg shadow-primary/30">
+                        ÖDEME YAPTIM
+                    </button>
+
+                </form>
+
+
+            </div>
+
+            <div class="bg-secondary-light p-5 border-t">
+                <ul class="text-sm text-gray-700 space-y-3">
+                    <li class="flex">
+                        <i class="fas fa-info-circle text-primary mt-1 mr-2"></i>
+                        <span>Bankanızdan para yatırımınız kutucuğa yazdığınız tutar ile aynı olmalıdır.</span>
+                    </li>
+                    <li class="flex">
+                        <i class="fas fa-info-circle text-primary mt-1 mr-2"></i>
+                        <span>Yatırımınızı sadece kendi bankanıza ait hesabınızdan transfer yapmanız gereklidir.</span>
+                    </li>
+                    <li class="flex">
+                        <i class="fas fa-info-circle text-primary mt-1 mr-2"></i>
+                        <span>Geri sayım bitmeden yatırımı yapmanız ve ÖDEME YAPTIM butonuna basmanız gereklidir.</span>
+                    </li>
+                    <li class="flex">
+                        <i class="fas fa-info-circle text-primary mt-1 mr-2"></i>
+                        <span>Bankanızdan yaptığınız her transfer için açıklamayı boş bırakmanız önemle rica olunur</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Success Section (Initially Hidden) -->
+        <div id="successSection" class="p-8 hidden animate-fade-in">
+            <div class="text-center">
+                <div class="mx-auto w-24 h-24 rounded-full bg-green-100 flex items-center justify-center mb-6">
+                    <i class="fas fa-check text-4xl text-green-500"></i>
+                </div>
+
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">Yatırım Talebiniz Alındı</h2>
+                <p class="text-gray-600 mb-8">İşleminiz en kısa sürede sonuçlandırılıp bakiyenize yansıyacaktır.</p>
+
+                <div class="payment-amount p-5 text-center mb-6">
+                    <p class="text-blue-100 text-sm mb-1">Yatırım Tutarı</p>
+                    <p class="text-white text-3xl font-bold" id="amount-value2"></p>
+                </div>
+
+                <div class="bg-green-50 rounded-xl p-5 mb-8 text-left">
+                    <h3 class="font-semibold text-gray-800 mb-3">İşlem Özeti</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">İşlem Tarihi</span>
+                            <span class="font-medium" id="currentDate"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Durum</span>
+                            <span class="text-green-600 font-medium">İnceleniyor</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="redirect-btn bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-xl transition duration-300">
+                    SİTEYE DÖN
+                </button>
+            </div>
+        </div>
+
+        <!-- Timeout Section (Initially Hidden) -->
+        <div id="timeoutSection" class="p-8 hidden animate-fade-in">
+            <div class="text-center">
+                <div class="mx-auto w-24 h-24 rounded-full bg-red-100 flex items-center justify-center mb-6">
+                    <i class="fas fa-clock text-4xl text-red-500"></i>
+                </div>
+
+                <h2 class="text-2xl font-bold text-gray-800 mb-3">Süre Doldu</h2>
+                <p class="text-gray-600 mb-8">Ödeme işlemi için ayrılan süre doldu. Yeni bir işlem başlatmak için siteye dön butona tıklayabilirsiniz.</p>
+
+                <button class="redirect-btn bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-6 rounded-xl transition duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50 shadow-lg shadow-primary/30">
+                    SİTEYE DÖN
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+
+          let geriSayac;
+
+          let totalSeconds = 0;
+          let initialTotalSeconds = 20 * 60;
+
+          var redirectUrl = document.referrer;
+          var getValidBankAccountErrorCount = 0;
+
+          GetValidBankAccount();
+
+          function GetValidBankAccount() {
+            var transactionId = "@Context.Request.Query["transaction"]";
+            var bankaId = "@Context.Request.Query["banka"]";
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            var dataToSend = {
+                transactionId: transactionId,
+                bankaId: bankaId
+            };
+
+            $.ajax({
+                url: '@Url.Action("GetValidBankAccount", "Home")',
+                type: 'POST',
+                contentType: 'application/json',
+                headers: { 'RequestVerificationToken': token },
+                data: JSON.stringify(dataToSend),
+                success: function (response) {
+                    if (!response.status) {
+
+                        $("#errorMessage").empty().text(response.message);
+
+                        $('#loadingScreen').addClass('hidden');
+                        $('#mainContent').addClass('hidden');
+                        $('#errorScreen').removeClass('hidden');
+                    }
+                    else {
+
+                        $("#havaleBankId").val(response.model.id);
+
+                        $("#fullName").text(response.model.fullname);
+                        $("#username").text(response.model.username);
+
+                        $("#amount-value").text("₺ " + response.model.amount);
+                        $("#amount-value2").text("₺ " + response.model.amount);
+                        $("#accountName").text(response.model.hesapSahibi);
+                        $("#ibanNumber").text(response.model.hesapNo);
+
+                        if(redirectUrl === "" ||
+                           redirectUrl == undefined ||
+                           redirectUrl == null) {
+
+                            redirectUrl = response.model.webSiteUrl;
+                        }
+
+                        var sayac = JSON.parse(response.model.timeLeft);
+
+                        totalSeconds = sayac;
+
+                        const progressPercentage = (totalSeconds / initialTotalSeconds) * 100;
+                        $('#timerCircle').css('--progress', `${progressPercentage}%`);
+                        $("#countdown").html(convertStoMs(sayac));
+                        setTimer(sayac);
+
+                        $('#loadingScreen').addClass('hidden');
+                        $('#errorScreen').addClass('hidden');
+
+                        $('#mainContent').removeClass('hidden');
+
+                    }
+                },
+                error: function (xhr, status, error) {
+                    getValidBankAccountErrorCount++;
+
+                    if (getValidBankAccountErrorCount == 1) {
+                        GetValidBankAccount();
+                    }
+                    else {
+                         $('#loadingScreen').addClass('hidden');
+                         $('#mainContent').addClass('hidden');
+
+                         $("#errorMessage").empty().text("Hata oluştu!. Bir süre sonra tekrar deneyiniz.");
+                         $('#errorScreen').removeClass('hidden');
+                    }
+                }
+            })
+        }
+
+
+          function setTimer(sayac) {
+            geriSayac = setInterval(function () {
+                sayac--;
+
+                if (sayac <= 0) {
+                    clearInterval(geriSayac);
+
+                    showTimeoutSection();
+                    return;
+
+                } else {
+
+                    let seconds = sayac;
+                    let minutes = ~~(seconds / 60);
+
+                    const progressPercentage = (totalSeconds / initialTotalSeconds) * 100;
+                    $('#timerCircle').css('--progress', `${progressPercentage}%`);
+
+                    if (minutes < 2) {
+                      $('#countdown').addClass('text-red-500');
+                      $('#timerCircle').addClass('timer-warning');
+                    }
+
+                    $("#countdown").html(convertStoMs(sayac));
+
+                     totalSeconds = sayac;
+                }
+            }, 1000);
+        }
+
+          function convertStoMs(seconds) {
+            let minutes = ~~(seconds / 60);
+            let extraSeconds = Math.floor(seconds % 60);
+            let minutesText = minutes < 10 ? "0" + minutes : minutes;
+            let extraSecondsText = extraSeconds < 10 ? "0" + extraSeconds : extraSeconds;
+            return minutesText + ":" + extraSecondsText;
+          }
+
+          function showTimeoutSection() {
+            $('#paymentInfoSection, #successSection').addClass('hidden');
+            $('#timeoutSection').removeClass('hidden');
+          }
+
+          // Event Handlers
+          $('#paymentCompleteBtn').on('click', function(e) {
+            e.preventDefault();
+
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('tr-TR');
+            const formattedTime = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            $('#currentDate').text(`${formattedDate} ${formattedTime}`);
+
+            clearInterval(geriSayac);
+
+            $('#paymentInfoSection, #timeoutSection').addClass('hidden');
+            $('#successSection').removeClass('hidden');
+          });
+
+          $('.redirect-btn').on('click', function() {
+            location.href = redirectUrl;
+          });
+
+          // Copy to clipboard functionality
+          $('.copy-btn').on('click', function(e) {
+            e.preventDefault();
+
+            const textToCopy = $(this).closest('.relative').find('span').text();
+            const $icon = $(this).find('i');
+
+            const $textarea = $('<textarea>').val(textToCopy).appendTo('body').select();
+            document.execCommand('copy');
+            $textarea.remove();
+
+            $icon
+              .removeClass('far fa-copy')
+              .addClass('fas fa-check text-green-500 copy-success');
+
+            setTimeout(() => {
+              $icon
+                .removeClass('fas fa-check text-green-500 copy-success')
+                .addClass('far fa-copy');
+            }, 1500);
+          });
+        });
+    </script>
+</body>
+
+</html>

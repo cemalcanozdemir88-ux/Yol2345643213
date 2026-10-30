@@ -1,0 +1,232 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-sm-4">
+      <h2>İptal Edilen Yatırımlar Manual</h2>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">Ana Sayfa</a>
+        </li>
+        <li class="breadcrumb-item active">
+          <strong>İptal Edilen Yatırımlar Manual</strong>
+        </li>
+      </ol>
+    </div>
+  </div>
+  
+  <div class="wrapper wrapper-content">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="ibox">
+          <div class="ibox-content">
+            <form>
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="baslik"> Banka </label>
+                    <select
+                      id="filterBankaId"
+                      name="filterBankaId"
+                      [(ngModel)]="filterModel.bankaId"
+                      (change)="filterChanged(approveDateStart.value, approveDateEnd.value, createdDateStart.value, createdDateEnd.value)"
+                      class="form-control">
+                      <option value>Tümünü Liste</option>
+                      <option
+                        *ngFor="let item of bankalarDropDownModel"
+                        [value]="item.id">
+                        {{ item.baslik }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="baslik"> Arama </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="filterSearchText"
+                      name="filterSearchText"
+                      [(ngModel)]="filterModel.searchText"
+                      (keydown.enter)="filterChanged(approveDateStart.value, approveDateEnd.value, createdDateStart.value, createdDateEnd.value)" />
+                  </div>
+                </div>
+                <div class="w-100 d-none d-md-block"></div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="font-normal">İptal Tarihi Başlangıç</label>
+                    <div class="input-group date">
+                      <span class="input-group-addon"><i
+                          class="fa fa-calendar"></i></span>
+                      <input type="text" class="form-control dateControl"
+                        autocomplete="off"
+                        id="approveDateStart" name="approveDateStart"
+                        #approveDateStart>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label>İptal Tarihi Bitiş</label>
+                    <div class="input-group date">
+                      <span class="input-group-addon"><i
+                          class="fa fa-calendar"></i></span>
+                      <input type="text" class="form-control dateControl"
+                        autocomplete="off"
+                        id="approveDateEnd" name="approveDateEnd" #approveDateEnd>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label class="font-normal">Kayıt Tarihi Başlangıç</label>
+                    <div class="input-group date">
+                      <span class="input-group-addon"><i
+                          class="fa fa-calendar"></i></span>
+                      <input type="text" class="form-control dateControl"
+                        autocomplete="off"
+                        id="createdDateStart" name="createdDateStart"
+                        #createdDateStart>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label>Kayıt Tarihi Bitiş</label>
+                    <div class="input-group date">
+                      <span class="input-group-addon"><i
+                          class="fa fa-calendar"></i></span>
+                      <input type="text" class="form-control dateControl"
+                        autocomplete="off"
+                        id="createdDateEnd" name="createdDateEnd" #createdDateEnd>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <button
+                      style="margin-top: 26px;"
+                      class="btn btn-primary "
+                      (click)="filterChanged(approveDateStart.value, approveDateEnd.value, createdDateStart.value, createdDateEnd.value)">
+                      Ara
+                    </button>
+                    <button
+                      style="margin-left: 10px; margin-top: 26px;"
+                      class="btn btn-warning "
+                      (click)="filterModel.bankaId=''; filterModel.searchText=''; approveDateStart.value=''; approveDateEnd.value=''; createdDateStart.value='';createdDateEnd.value='';filterChanged(approveDateStart.value, approveDateEnd.value, createdDateStart.value, createdDateEnd.value)">
+                      Filtreyi Temizle
+                    </button>
+                  </div>
+                </div>
+  
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="ibox">
+          <div class="ibox-content">
+  
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Sıra No</th>
+                    <th>Talep No</th>
+                    <th>Tedarikci</th>
+                    <th>İptal Eden Kullanıcı</th>
+                    <th>Banka Adı</th>
+                    <th>Üye Ad Soyad</th>
+                    <th>Hesap Sahibi</th>
+                    <th>Hesap No</th>
+                    <th>Tutar</th>
+                    <th>Komisyon</th>
+                    <th>Toplam</th>
+                    <th>İptal Tarihi</th>
+                    <th>Kayıt Tarihi</th>
+                    <th>İptal Açıklama</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of yatirimTalepleri; let i = index">
+                    <td>{{ (i + ((activePage - 1) *
+                      filterModel.recordsPerPage)) + 1 }}</td>
+                    <td>{{ item.talepNoWithFormated }}</td>
+                    <td>{{ item.tedarikciAdi }}</td>
+                    <td>{{ item.guncelleyenKullanici }}</td>
+                    <td>{{ item.bankaAdi }}</td>
+                    <td>{{ item.adSoyad }}</td>
+                    <td>{{ item.hesapSahibi }}</td>
+                    <td>{{ item.hesapNo }}</td>
+                    <td>
+                      {{
+                      item.tutar | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                      }}
+                    </td>
+                    <td>
+                      {{
+                      item.tedarikciKomisyon | currency : "TRY" : "symbol-narrow" :
+                      "1.2-2"
+                      }}
+                    </td>
+                    <td>
+                      {{
+                      item.toplam | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                      }}
+                    </td>
+                    <td>
+                      {{ item.onayTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
+                    </td>
+                    <td>
+                      {{ item.kayitTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
+                    </td>
+                    <td class="text-center">
+                      <button 
+                        class="btn-primary btn btn-xs" 
+                        data-toggle="modal" 
+                        data-target="#cancelDescriptionModal"
+                        (click)="startOpenCancelDescriptionModal(item.iptalAciklama)">
+                        <span class="fa fa-search fa-lg" aria-hidden="true"></span>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+
+            <hr />
+            <app-pagination [activePage]="activePage" [totalPages]="totalPages"
+              (pageChanged)="getAll($event)"></app-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+  class="modal inmodal fade"
+  id="cancelDescriptionModal"
+  role="dialog"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div>{{selectedCancelDescription}}</div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-danger"
+          data-dismiss="modal"
+         
+          (click)="closeCancelDescriptionModal()">
+          Kapat
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+  

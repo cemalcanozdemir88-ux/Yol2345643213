@@ -1,0 +1,281 @@
+﻿@{
+	Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+	<title>@ViewBag.WebsiteTitle Havale</title>
+
+	<meta name="robots" content="noindex, nofollow">
+	<meta name="content-language" content="tr">
+	<meta name="resource-type" content="document">
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="msapplication-TileColor" content="#da532c">
+	<meta name="theme-color" content="#ffffff">
+
+	<script src="https://cdn.tailwindcss.com"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4 text-slate-800">
+
+	<div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden p-6 sm:p-8">
+
+		<div class="border-b border-slate-100 pb-4 mb-6 text-center">
+			<h1 class="text-xl font-bold text-slate-800">Havale / EFT ile Ödeme</h1>
+			<p class="text-xs text-slate-500 mt-1">Lütfen aşağıdaki hesap bilgilerine transfer yapınız.</p>
+		</div>
+
+		<div id="loadingState" class="flex flex-col items-center justify-center py-12 space-y-4">
+			<div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+			<p class="text-sm font-medium text-slate-600">Hesap bilgileri getiriliyor...</p>
+		</div>
+
+		<div id="paymentContent" class="hidden space-y-6">
+
+			<form>
+				@Html.AntiForgeryToken()
+				<input type="hidden" id="havaleBankId" name="havaleBankId" />
+
+
+				<div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
+					<div class="flex items-center space-x-2 text-amber-700">
+						<i class="fa-regular fa-clock text-lg"></i>
+						<span class="text-xs font-semibold">Kalan Süreniz:</span>
+					</div>
+					<div id="timer" class="text-xl font-bold font-mono text-amber-800"></div>
+				</div>
+
+				<div class="space-y-4 mt-3 mb-3">
+
+					<div>
+						<label class="block text-xs font-semibold text-slate-500 mb-1">Hesap Sahibi</label>
+						<div class="relative flex items-center">
+							<input type="text" id="accountHolder" readonly class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 pr-24 text-sm font-medium text-slate-700 focus:outline-none" value="" />
+							<button type="button" class="copy-btn absolute right-1.5 top-1.5 bottom-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 text-xs font-semibold rounded-md transition flex items-center space-x-1" data-target="accountHolder">
+								<i class="fa-regular fa-copy"></i>
+								<span>Kopyala</span>
+							</button>
+						</div>
+					</div>
+
+					<div>
+						<label class="block text-xs font-semibold text-slate-500 mb-1">IBAN</label>
+						<div class="relative flex items-center">
+							<input type="text" id="iban" readonly class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 pr-24 text-sm font-mono font-medium text-slate-700 focus:outline-none" value="" />
+							<button type="button" class="copy-btn absolute right-1.5 top-1.5 bottom-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 text-xs font-semibold rounded-md transition flex items-center space-x-1" data-target="iban">
+								<i class="fa-regular fa-copy"></i>
+								<span>Kopyala</span>
+							</button>
+						</div>
+					</div>
+
+					<div>
+						<label class="block text-xs font-semibold text-slate-500 mb-1">Ödenecek Tutar</label>
+						<div id="amount" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 font-bold text-slate-800 text-lg">
+						</div>
+					</div>
+
+				</div>
+
+				<button id="btnPaymentDone" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition duration-200 flex items-center justify-center space-x-2">
+					<i class="fa-solid fa-check"></i>
+					<span>Ödemeyi Yaptım</span>
+				</button>
+
+			</form>
+
+		</div>
+
+		<div id="successState" class="hidden text-center py-8 space-y-4">
+			<div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
+				<i class="fa-solid fa-clock-rotate-left"></i>
+			</div>
+			<h2 class="text-xl font-bold text-slate-800">Ödeme Bildiriminiz Alındı</h2>
+			<p class="text-sm text-slate-600 leading-relaxed">
+				İşleminiz incelenip en kısa sürede tarafınıza bilgi verilecektir.
+			</p>
+		</div>
+
+		<div id="timeoutState" class="hidden text-center py-8 space-y-4">
+			<div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto text-3xl">
+				<i class="fa-solid fa-circle-xmark"></i>
+			</div>
+			<h2 class="text-xl font-bold text-slate-800">Zaman Aşımı</h2>
+			<p class="text-sm text-slate-600 leading-relaxed">
+				İşlem zaman aşımına uğradı. Güvenliğiniz için hesap bilgileri gizlenmiştir.
+			</p>
+		</div>
+
+	</div>
+
+	<script>
+		$(document).ready(function() {
+			//let timerInterval;
+			//let durationInSeconds = 15 * 60; // 15 dakika
+			let geriSayac;
+
+			// 1. Gerçek Web API (AJAX) Çağrısı
+			function loadBankDetails() {
+
+				var transactionId = "@Context.Request.Query["transaction"]";
+				var bankaId = "@Context.Request.Query["banka"]";
+				var token = $('input[name="__RequestVerificationToken"]').val();
+
+				var dataToSend = {
+					transactionId: transactionId,
+					bankaId: bankaId
+				};
+
+				$.ajax({
+					url: '@Url.Action("GetValidBankAccount", "Home")',
+					type: 'POST',
+					contentType: 'application/json',
+					headers: { 'RequestVerificationToken': token },
+					data: JSON.stringify(dataToSend),
+					success: function(response) {
+
+						if (!response.status) {
+
+							$('#loadingState').html(`
+							<div class="text-center text-rose-600 space-y-2">
+								<i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+								<p class="text-sm font-semibold">`+response.message+`</p>
+								<p class="text-sm font-semibold">Bir süre sonra tekrar deneyiniz</p>
+							</div>
+						`);
+
+						}
+						else {
+							$("#havaleBankId").val(response.model.id);
+
+							$('#accountHolder').val(response.model.hesapSahibi);
+							$('#iban').val(response.model.hesapNo);
+							$('#amount').text("₺ " + response.model.amount);
+
+							// Yüklenme ekranını gizle, ödeme sayfasını göster
+							$('#loadingState').addClass('hidden');
+							$('#paymentContent').removeClass('hidden');
+
+							// Sayacı başlat
+							var sayac = JSON.parse(response.model.timeLeft);
+							startTimer(sayac);
+						}
+
+
+
+
+					},
+					error: function(xhr, status, error) {
+
+						console.error("API Hatası:", error);
+						// Yükleme ekranında hata mesajı göster
+						$('#loadingState').html(`
+							<div class="text-center text-rose-600 space-y-2">
+								<i class="fa-solid fa-triangle-exclamation text-3xl"></i>
+								<p class="text-sm font-semibold">Hesap bilgileri alınamadı.</p>
+								<p class="text-sm font-semibold">Bir süre sonra tekrar deneyiniz</p>
+							</div>
+						`);
+					}
+				});
+			}
+
+			function startTimer(sayac) {
+				geriSayac = setInterval(function() {
+					 sayac--;
+
+					 if (sayac <= 0) {
+						clearInterval(geriSayac);
+						handleTimeout();
+						return;
+
+					 }else {
+						 updateTimerDisplay(sayac);
+					 }
+
+
+				}, 1000);
+			}
+
+			// 2. Sayacı Başlatma Fonksiyonu
+			// function startTimer(sayac) {
+			// 	updateTimerDisplay(durationInSeconds);
+
+			// 	timerInterval = setInterval(() => {
+			// 		durationInSeconds--;
+			// 		updateTimerDisplay(durationInSeconds);
+
+			// 		if (durationInSeconds <= 0) {
+			// 			clearInterval(geriSayac);
+			// 			handleTimeout();
+			// 		}
+			// 	}, 1000);
+			// }
+
+			function updateTimerDisplay(seconds) {
+				// const mins = Math.floor(seconds / 60);
+				// const secs = seconds % 60;
+				// const formattedMins = String(mins).padStart(2, '0');
+				// const formattedSecs = String(secs).padStart(2, '0');
+				// $('#timer').text(`${formattedMins}:${formattedSecs}`);
+
+				let minutes = ~~(seconds / 60);
+				let extraSeconds = Math.floor(seconds % 60);
+				let minutesText = minutes < 10 ? "0" + minutes : minutes;
+				let extraSecondsText = extraSeconds < 10 ? "0" + extraSeconds : extraSeconds;
+
+				$('#timer').text(minutesText + ":" + extraSecondsText);
+			}
+
+			// 3. Zaman Aşımı Yönetimi
+			function handleTimeout() {
+				$('#paymentContent').addClass('hidden');
+				$('#timeoutState').removeClass('hidden');
+			}
+
+			// 4. Sayfa Yüklendiğinde AJAX İsteğini Tetikle
+			loadBankDetails();
+
+			// 5. "Ödemeyi Yaptım" Butonu
+			$('#btnPaymentDone').on('click', function(e) {
+				e.preventDefault();
+
+				clearInterval(geriSayac);
+				$('#paymentContent').addClass('hidden');
+				$('#successState').removeClass('hidden');
+			});
+
+			// 6. Kopyala Butonları İşlevselliği
+			$('.copy-btn').on('click', function() {
+				const targetId = $(this).data('target');
+				const textToCopy = $('#' + targetId).val();
+				const $button = $(this);
+
+				navigator.clipboard.writeText(textToCopy).then(() => {
+					const originalHtml = $button.html();
+					$button.html('<i class="fa-solid fa-check"></i> <span>Kopyalandı!</span>');
+					$button.removeClass('bg-blue-50 text-blue-600 hover:bg-blue-100')
+						   .addClass('bg-emerald-100 text-emerald-700');
+
+					setTimeout(() => {
+						$button.html(originalHtml);
+						$button.removeClass('bg-emerald-100 text-emerald-700')
+							   .addClass('bg-blue-50 text-blue-600 hover:bg-blue-100');
+					}, 2000);
+				}).catch(err => {
+					console.error("Kopyalama hatası: ", err);
+				});
+			});
+		});
+	</script>
+</body>
+</html>

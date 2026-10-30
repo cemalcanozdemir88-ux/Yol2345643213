@@ -1,0 +1,123 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-sm-4">
+    <h2>İptal Talepleri</h2>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/']">Ana Sayfa</a>
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>İptal Talepleri</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="wrapper wrapper-content">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <form>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="baslik"> Tedarikçi </label>
+                  <select
+                    id="filterTedarikciId"
+                    name="filterTedarikciId"
+                    [(ngModel)]="filterModel.tedarikciId"
+                    (change)="filterChanged()"
+                    class="form-control">
+                    <option value>Tümünü Liste</option>
+                    <option
+                      *ngFor="let item of tedarikcilerDronDownModel"
+                      [value]="item.id">
+                      {{ item.unvan }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="baslik"> Banka </label>
+                  <select
+                    id="filterBankaId"
+                    name="filterBankaId"
+                    [(ngModel)]="filterModel.bankaId"
+                    (change)="filterChanged()"
+                    class="form-control">
+                    <option value>Tümünü Liste</option>
+                    <option
+                      *ngFor="let item of bankalarDropDownModel"
+                      [value]="item.id">
+                      {{ item.baslik }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Tedarikci</th>
+                <th>Kullanıcı</th>
+                <th>Banka Adı</th>
+                <th>Web Site</th>
+                <th>Üye Ad Soyad</th>
+                <th>Yöntem Tipi</th>
+                <th>Hesap Sahibi</th>
+                <th>Hesap No</th>
+                <th>Tutar</th>
+                <th>Komisyon</th>
+                <th>Toplam</th>
+                <th>İslem Tipi</th>
+                <th>Durum</th>
+                <th>İptal Tarihi</th>
+                <th>Kayıt Tarihi</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of cekimTalepleri; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ item.tedarikciAdi }}</td>
+                <td>{{ "kullanici adi" }}</td>
+                <td>{{ item.bankaAdi }}</td>
+                <td>{{ item.webSiteUrl }}</td>
+                <td>{{ item.adSoyad }}</td>
+                <td>{{ item.yontemTipi }}</td>
+                <td>{{ item.hesapSahibi }}</td>
+                <td>{{ item.hesapNo }}</td>
+                <td>{{ item.tutar }}</td>
+                <td>{{ item.tedarikciKomisyon }}</td>
+                <td>{{ item.toplam }}</td>
+                <td>{{ item.islemTipi === 1 ? "Yatırım" : "Çekim" }}</td>
+                <td>
+                  {{ getDurumText(item.durum) }}
+                </td>
+                <td>
+                  {{ item.onayTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
+                </td>
+                <td>
+                  {{ item.kayitTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
+                </td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

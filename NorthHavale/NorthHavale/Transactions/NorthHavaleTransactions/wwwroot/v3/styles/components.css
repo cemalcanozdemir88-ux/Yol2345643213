@@ -1,0 +1,183 @@
+/* Payment Card */
+.payment-card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+/* Header */
+.header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background: white;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.logo-icon {
+    background: #fff7ed;
+    padding: 0.75rem;
+    border-radius: 9999px;
+    color: var(--primary-color);
+    box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.logo-icon:hover {
+    transform: scale(1.05);
+}
+
+.logo h1 {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    letter-spacing: -0.025em;
+}
+
+/* Welcome Message */
+.welcome-message {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 237, 213, 0.5);
+    border-bottom: 1px solid #fed7aa;
+}
+
+.welcome-message h2 {
+    color: var(--text-color);
+    font-size: 1.125rem;
+    margin-bottom: 0.25rem;
+}
+
+.welcome-message p {
+    color: var(--gray-medium);
+    font-size: 0.875rem;
+}
+
+/* Content */
+.content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Amount Section */
+.amount-section {
+    text-align: center;
+}
+
+.amount-section .label {
+    color: var(--gray-medium);
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.amount {
+    font-size: 1.875rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* Account Details */
+.account-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+}
+
+.copy-input {
+    display: flex;
+    align-items: stretch;
+}
+
+.copy-input input {
+    flex: 1;
+    padding: 0.75rem;
+    background: var(--gray-light);
+    border: 1px solid var(--border-color);
+    border-right: none;
+    border-radius: 0.5rem 0 0 0.5rem;
+    font-family: monospace;
+    outline: none;
+}
+
+.copy-btn {
+    padding: 0.75rem;
+    background: var(--gray-light);
+    border: 1px solid var(--border-color);
+    border-radius: 0 0.5rem 0.5rem 0;
+    color: var(--gray-medium);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.copy-btn:hover {
+    background: var(--border-color);
+}
+
+/* Payment Button */
+.payment-btn {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(to right, var(--primary-color), var(--primary-hover));
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.payment-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Timer */
+.timer {
+    text-align: center;
+    background: #fff7ed;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+}
+
+.timer-label {
+    font-size: 0.875rem;
+    color: var(--gray-medium);
+    margin-bottom: 0.25rem;
+}
+
+.timer-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-family: monospace;
+    color: var(--primary-color);
+}
+
+/* Info Box */
+.info-box {
+    background: #fff7ed;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+.info-box p {
+    font-size: 0.875rem;
+    color: #9a3412;
+    line-height: 1.5;
+}

@@ -1,0 +1,281 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-sm-4">
+      <h2>Kullanıcı Blacklist</h2>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a [routerLink]="['/']">Ana Sayfa</a>
+        </li>
+        <li class="breadcrumb-item active">
+          <strong>Kullanıcı Blacklist</strong>
+        </li>
+      </ol>
+    </div>
+  </div>
+  
+  <button
+    style="display: none"
+    data-toggle="modal"
+    data-target="#kullaniciBlacklistEkleModal"
+    #kullaniciBlacklistEkleModalButton
+  >
+    Open Kullanici BlackList Ekle Moda
+  </button>
+  
+  <div class="wrapper wrapper-content">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="ibox">
+          <div class="ibox-title">
+            <h5>Kullanıcı Blacklist</h5>
+            <div class="ibox-tools">
+              <button
+                *appHasAuthorization="Authorization.KullaniciBlacklistEkleyebilir"
+                class="btn btn-primary btn-xs"
+                (click)="openKullaniciBlacklistEkleModal()"
+              >
+                Yeni Kayıt Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="ibox">
+          <div class="ibox-content">
+            <form>
+              <div class="row">
+  
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="filterWebsiteId"> Website </label>
+                    <select
+                      id="filterWebsiteId"
+                      name="filterWebsiteId"
+                      [(ngModel)]="kullaniciBlacklistFilter.websiteId"
+                      (change)="filterChanged()"
+                      class="form-control"
+                    >
+                      <option value>Tümünü Liste</option>
+                      <option
+                        *ngFor="let item of webSiteDropDownModel"
+                        [value]="item.id"
+                      >
+                        {{ item.webSiteUrl }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+  
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="filterUserId"> User Id </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="filterUserId"
+                      name="filterUserId"
+                      [(ngModel)]="kullaniciBlacklistFilter.userId"
+                      (keydown.enter)="filterChanged()"
+                    />
+                  </div>
+                </div>
+  
+                <div class="w-100 d-none d-md-block"></div>
+  
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <button
+                      style="margin-top: 26px"
+                      class="btn btn-primary"
+                      (click)="filterChanged()"
+                    >
+                      Ara
+                    </button>
+                    <button
+                      style="margin-left: 10px; margin-top: 26px"
+                      class="btn btn-warning"
+                      (click)="
+                        kullaniciBlacklistFilter.websiteId= '';
+                        kullaniciBlacklistFilter.userId= '';
+                        filterChanged()
+                      "
+                    >
+                      Filtreyi Temizle
+                    </button>
+                  </div>
+                </div>
+  
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="ibox">
+          <div class="ibox-content">
+  
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Sıra No</th>
+                    <th>Website</th>
+                    <th>User Id</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of kullaniciBlackList; let i = index">
+                    <td>
+                      {{
+                        i + (activePage - 1) * kullaniciBlacklistFilter.recordsPerPage + 1
+                      }}
+                    </td>
+                    <td>{{ item.webSiteUrl }}</td>
+                    <td>{{ item.userId }}</td>
+                    <td>
+                        <button
+                          *appHasAuthorization="
+                            Authorization.KullaniciBlacklistSilebilir
+                          "
+                          class="btn-danger btn btn-xs"
+                          data-toggle="modal"
+                          data-target="#kullaniciBlacklistSilModal"
+                          (click)="startDelete(item.id)"
+                        >
+                          Sil
+                        </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+  
+            
+            <hr />
+            <app-pagination
+              [activePage]="activePage"
+              [totalPages]="totalPages"
+              (pageChanged)="getAll($event)"
+            ></app-pagination>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div
+    class="modal inmodal fade"
+    id="kullaniciBlacklistSilModal"
+    role="dialog"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h3>Kaydı silmek istediğinize emin misiniz?</h3>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-white"
+            data-dismiss="modal"
+            #kullaniciBlacklistSilModalKapatButton
+            (click)="cancelDelete()"
+          >
+            Kapat
+          </button>
+          <button
+            type="submit"
+            class="btn btn-danger"
+            [disabled]="isDeleting"
+            (click)="deleteRecord()"
+          >
+            <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isDeleting"></i>Sil
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div
+    class="modal inmodal fade"
+    id="kullaniciBlacklistEkleModal"
+    tabindex="-1"
+    role="dialog"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form
+          (ngSubmit)="submitCreateKullaniciBlacklistForm(kullaniciBlacklistForm)"
+          #kullaniciBlacklistForm="ngForm"
+        >
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="websiteId">
+                    Website <span class="text-danger">*</span>
+                  </label>
+                  <select
+                    id="websiteId"
+                    name="websiteId"
+                    [(ngModel)]="kullaniciBlacklistCreateModel.websiteId"
+                    required
+                    class="form-control"
+                  >
+                    <option value disabled selected>Website Seçin</option>
+                    <option
+                      *ngFor="let item of webSiteDropDownModel"
+                      [value]="item.id"
+                    >
+                      {{ item.webSiteUrl }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="hesapSahibi">
+                    User Id <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="userId"
+                    name="userId"
+                    required
+                    [(ngModel)]="kullaniciBlacklistCreateModel.userId"
+                  />
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-white"
+              #kullaniciBlacklistEkleModalKapatButton
+              data-dismiss="modal"
+              (click)="closeKullaniciBlacklistEkleModalKapat()"
+            >
+              Kapat
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="isCreating">
+              <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isCreating"></i>Kaydet
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  

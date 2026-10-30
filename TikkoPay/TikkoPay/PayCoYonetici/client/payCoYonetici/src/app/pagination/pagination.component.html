@@ -1,0 +1,20 @@
+<div class="clear">
+    <ul class="pagination float-right" *ngIf="totalPages > 0">
+        <li class="footable-page-arrow" [class.disabled]="activePage === 1">
+            <a data-page="first" (click)="onPageChange(1)">«</a>
+        </li>
+        <li class="footable-page-arrow" [class.disabled]="activePage === 1">
+            <a data-page="prev" (click)="onPageChange(activePage - 1 > 0 ? activePage - 1 : 1)">‹</a>
+        </li>
+        <li *ngFor="let item of getPageNumbers()" [class.active]="activePage === item" class="footable-page">
+            <a *ngIf="item !== '...'" [attr.data-page]="item" (click)="onPageChange(item)">{{ item }}</a>
+            <span *ngIf="item === '...'" class="ellipsis">...</span>
+        </li>
+        <li class="footable-page-arrow" [class.disabled]="activePage === totalPages">
+            <a data-page="next" (click)="onPageChange(activePage + 1 < totalPages ? activePage + 1 : totalPages)">›</a>
+        </li>
+        <li class="footable-page-arrow" [class.disabled]="activePage === totalPages">
+            <a data-page="last" (click)="onPageChange(totalPages)">»</a>
+        </li>
+    </ul>
+</div>

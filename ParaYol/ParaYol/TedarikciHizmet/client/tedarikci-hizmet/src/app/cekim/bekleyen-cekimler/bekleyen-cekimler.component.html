@@ -1,0 +1,343 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-sm-4">
+    <h2>Bekleyen Çekimler</h2>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/']">Ana Sayfa</a>
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>Bekleyen Çekimler</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="wrapper wrapper-content">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <form>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="baslik"> Banka </label>
+                  <select
+                    id="filterBankaId"
+                    name="filterBankaId"
+                    [(ngModel)]="filterModel.bankaId"
+                    (change)="filterChanged(createdDateStart.value, createdDateEnd.value)"
+                    class="form-control">
+                    <option value>Tümünü Liste</option>
+                    <option
+                      *ngFor="let item of bankalarDropDownModel"
+                      [value]="item.id">
+                      {{ item.baslik }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="baslik"> Arama </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="filterSearchText"
+                    name="filterSearchText"
+                    [(ngModel)]="filterModel.searchText"
+                    (keydown.enter)="filterChanged(createdDateStart.value, createdDateEnd.value)" />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="font-normal">Kayıt Tarihi Başlangıç</label>
+                  <div class="input-group date">
+                    <span class="input-group-addon"><i
+                        class="fa fa-calendar"></i></span>
+                    <input type="text" class="form-control dateControl"
+                      autocomplete="off"
+                      id="createdDateStart" name="createdDateStart"
+                      #createdDateStart>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Kayıt Tarihi Bitiş</label>
+                  <div class="input-group date">
+                    <span class="input-group-addon"><i
+                        class="fa fa-calendar"></i></span>
+                    <input type="text" class="form-control dateControl"
+                      autocomplete="off"
+                      id="createdDateEnd" name="createdDateEnd" #createdDateEnd>
+                  </div>
+                </div>
+              </div>
+              <div class="w-100 d-none d-md-block"></div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <button
+                    style="margin-top: 26px;"
+                    class="btn btn-primary "
+                    (click)="filterChanged(createdDateStart.value, createdDateEnd.value)">
+                    Ara
+                  </button>
+                  <button
+                    style="margin-left: 10px; margin-top: 26px;"
+                    class="btn btn-warning "
+                    (click)="filterModel.bankaId=''; filterModel.searchText=''; createdDateStart.value='';createdDateEnd.value='';filterChanged(createdDateStart.value, createdDateEnd.value)">
+                    Filtreyi Temizle
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <div class="alert alert-warning">
+            <span>{{ countdownMessage }}</span>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="float-right">
+                <button
+                  class="btn btn-success btn-xs"
+                  (click)="downloadExcel()">
+                  Excel İndir
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Sıra No</th>
+                  <th>Talep No</th>
+                  <th>Tedarikci</th>
+                  <th>Üye Ad Soyad</th>
+                  <th>Hesap No</th>
+                  <th>Hesap No Banka</th>
+                  <th>Tutar</th>
+                  <th>Komisyon</th>
+                  <th>Kayıt Tarihi</th>
+                  <th>Onayla</th>
+                  <th>İptal Et</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of yatirimTalepleri; let i = index">
+                  <td>{{ (i + ((activePage - 1) *
+                    filterModel.recordsPerPage)) + 1 }}</td>
+                  <td>{{ item.talepNoWithFormated }}</td>
+                  <td>{{ item.tedarikciAdi }}</td>
+                  <td>{{ item.adSoyad }}</td>
+                  <td>{{ item.hesapNo }}</td>
+                  <td>{{ item.hesapNoBanka }}</td>
+                  <td>
+                    {{
+                    item.tutar | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </td>
+                  <td>
+                    {{
+                    item.tedarikciKomisyon | currency : "TRY" : "symbol-narrow" :
+                    "1.2-2"
+                    }}
+                  </td>
+                  <td>
+                    {{ item.kayitTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
+                  </td>
+                  <td>
+                    <button
+                      class="btn-primary btn btn-xs"
+                      data-toggle="modal"
+                      data-target="#onayModal"
+                      (click)="startApprove(item.id)">
+                      Onayla
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      class="btn-danger btn btn-xs"
+                      data-toggle="modal"
+                      data-target="#iptalModal"
+                      (click)="startDelete(item.id)">
+                      İptal Et
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <hr />
+          <app-pagination [activePage]="activePage" [totalPages]="totalPages"
+            (pageChanged)="getAll($event)"></app-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal inmodal fade"
+    id="iptalModal"
+    role="dialog"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h3>Çekim talebi iptal edilecektir, emin misiniz?</h3>
+           <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label for="iptalNedeni">
+                    İptal Nedeni <span class="text-danger">*</span>
+                  </label>
+                  <select
+                    id="iptalNedeni"
+                    name="iptalNedeni"
+                    class="form-control"
+                    [(ngModel)]="selectedCancelReason"
+                    (ngModelChange)="onCancelReasonChange($event)"
+                  >
+                    <option value="">Seçiniz</option>
+                    <option value="Firma Talebi">Firma Talebi</option>
+                    <option value="İpucu Uyuşmazlığı">İpucu Uyuşmazlığı</option>
+                    <option value="Diğer">Diğer</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-12" *ngIf="selectedCancelReason === 'Diğer'">
+                <div class="form-group">
+                  <label for="baslik">
+                    Açıklama <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="iptalAciklama"
+                    name="iptalAciklama"
+                    required
+                    [(ngModel)]="iptalAciklama"
+                  />
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-white"
+            data-dismiss="modal"
+            #iptalModalKapatButton
+            (click)="closeCancel()">
+            Kapat
+          </button>
+          <button
+            type="submit"
+            class="btn btn-danger"
+            [disabled]="isCancelling"
+            (click)="cancelRecord()">
+            <i class="fa fa-spinner fa-spin fa-fw"
+              *ngIf="isCancelling"></i>İptal
+            Et
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal inmodal fade"
+    id="onayModal"
+    role="dialog"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h3>Çekim talebi onaylanacaktır, emin misiniz?</h3>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="dekontDosyasi">
+                  Dekont Yükle (Opsiyonel, yalnızca JPG, JPEG, PNG, PDF)
+                </label>
+                <div
+                  class="file-upload-area"
+                  #fileUploadArea
+                  tabindex="0"
+                  (focus)="onFocus()"
+                  (blur)="onBlur()"
+                  (dragover)="onDragOver($event)"
+                  (dragleave)="onDragLeave($event)"
+                  (drop)="onDrop($event)"
+                  [ngClass]="{'dragover': isDragging, 'focused': isFocused}">
+                  <input
+                    type="file"
+                    class="file-input"
+                    id="dekontDosyasi"
+                    name="dekontDosyasi"
+                    #dekontDosyasi
+                    accept="image/jpeg,image/jpg,image/png,application/pdf"
+                    multiple
+                    (change)="onFileSelected($event)" />
+                  <div class="upload-text" (click)="triggerFileInput()">
+                    <i class="fa fa-cloud-upload"></i>
+                    <p>
+                      Dosyaları buraya sürükleyin, 
+                      <span class="paste-link">Ctrl+V ile yapıştırın</span> veya 
+                      <span class="browse-link">dosya seçin</span>
+                    </p>
+                    <small class="text-muted">Maksimum dosya boyutu: 5 MB (Birden fazla dosya seçebilirsiniz)</small>
+                  </div>
+                </div>
+                <button
+                  class="btn btn-info btn-sm mt-2"
+                  (click)="pasteFromClipboard()">
+                  <i class="fa fa-paste"></i> Yapıştır
+                </button>
+                <div *ngIf="selectedFileNames.length > 0" class="selected-files mt-2">
+                  <div *ngFor="let fileName of selectedFileNames; let i = index" class="selected-file">
+                    <p><i class="fa fa-file"></i> {{ fileName }} 
+                      <button class="btn btn-danger btn-xs ml-2" (click)="removeFile(i)">
+                        <i class="fa fa-trash"></i> Kaldır
+                      </button>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-white"
+            data-dismiss="modal"
+            #onayModalKapatButton
+            (click)="closeApprove()">
+            Kapat
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="isApproving"
+            (click)="approveRecord()">
+            <i class="fa fa-spinner fa-spin fa-fw"
+              *ngIf="isApproving"></i>Onayla
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

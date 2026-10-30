@@ -1,0 +1,396 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-sm-4">
+    <h2>Bekleyen Yatırımlar</h2>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/']">Ana Sayfa</a>
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>Bekleyen Yatırımlar</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="wrapper wrapper-content">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <form>
+            <div class="row">
+              <div class="col-md-3" *ngIf="isAdmin()">
+                <div class="form-group">
+                  <label for="baslik"> Tedarikçi </label>
+                  <select
+                    id="filterTedarikciId"
+                    name="filterTedarikciId"
+                    [(ngModel)]="filterModel.tedarikciId"
+                    (change)="
+                      filterChanged(
+                        createdDateStart.value,
+                        createdDateEnd.value
+                      )
+                    "
+                    class="form-control"
+                  >
+                    <option value>Tümünü Liste</option>
+                    <option
+                      *ngFor="let item of tedarikcilerDronDownModel"
+                      [value]="item.id"
+                    >
+                      {{ item.unvan }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3" *ngIf="isAdmin()">
+                <div class="form-group">
+                  <label for="baslik"> Banka </label>
+                  <select
+                    id="filterBankaId"
+                    name="filterBankaId"
+                    [(ngModel)]="filterModel.bankaId"
+                    (change)="
+                      filterChanged(
+                        createdDateStart.value,
+                        createdDateEnd.value
+                      )
+                    "
+                    class="form-control"
+                  >
+                    <option value>Tümünü Liste</option>
+                    <option
+                      *ngFor="let item of bankalarDropDownModel"
+                      [value]="item.id"
+                    >
+                      {{ item.baslik }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="baslik"> Web Sitesi </label>
+                  <select
+                    id="filterWebSiteId"
+                    name="filterWebSiteId"
+                    [(ngModel)]="filterModel.webSiteId"
+                    (change)="
+                      filterChanged(
+                        createdDateStart.value,
+                        createdDateEnd.value
+                      )
+                    "
+                    class="form-control"
+                  >
+                    <option value *ngIf="!isWebSiteKullanicisi()">Tümünü Liste</option>
+                    <option
+                      *ngFor="let item of webSiteleriDropDownModel"
+                      [value]="item.id"
+                    >
+                      {{ item.kisaBaslik }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="baslik"> Arama </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="filterSearchText"
+                    name="filterSearchText"
+                    [(ngModel)]="filterModel.searchText"
+                    (keydown.enter)="filterChanged(createdDateStart.value, createdDateEnd.value)"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="font-normal">Kayıt Tarihi Başlangıç</label>
+                  <div class="input-group date">
+                    <span class="input-group-addon"
+                      ><i class="fa fa-calendar"></i
+                    ></span>
+                    <input
+                      type="text"
+                      class="form-control dateControl"
+                      autocomplete="off"
+                      id="createdDateStart"
+                      name="createdDateStart"
+                      [(ngModel)]="filterModel.createdDateStart"
+                      #createdDateStart
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Kayıt Tarihi Bitiş</label>
+                  <div class="input-group date">
+                    <span class="input-group-addon"
+                      ><i class="fa fa-calendar"></i
+                    ></span>
+                    <input
+                      type="text"
+                      class="form-control dateControl"
+                      autocomplete="off"
+                      id="createdDateEnd"
+                      name="createdDateEnd"
+                      #createdDateEnd
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="w-100 d-none d-md-block"></div>
+
+              <div class="col-md-12">
+                <div class="form-group">
+                  <button
+                    style="margin-top: 26px"
+                    class="btn btn-primary"
+                    (click)="
+                      filterChanged(
+                        createdDateStart.value,
+                        createdDateEnd.value
+                      )
+                    "
+                  >
+                    Ara
+                  </button>
+                  <button
+                    style="margin-left: 10px; margin-top: 26px"
+                    class="btn btn-warning"
+                    (click)="
+                      filterModel.tedarikciId = '';
+                      filterModel.bankaId = '';
+                      filterModel.searchText = '';
+                      createdDateStart.value = '';
+                      createdDateEnd.value = '';
+                      filterChanged(
+                        createdDateStart.value,
+                        createdDateEnd.value
+                      )
+                    "
+                  >
+                    Filtreyi Temizle
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Talep No</th>
+                  <th *ngIf="isAdmin()">Tedarikci</th>
+                  <th *ngIf="isAdmin()">Banka Adı</th>
+                  <th>Web Site</th>
+                  <th>Transaction Id</th>
+                  <th>UserId</th>
+                  <th>UserName</th>
+                  <th>Üye Ad Soyad</th>  
+                  <th *ngIf="isAdmin()">Hesap Sahibi</th>
+                  <th *ngIf="isAdmin()">Hesap No</th>
+                  <th>Tutar</th>
+                 
+                  <th>Kayıt Tarihi</th>
+                  <th *ngIf="isAdmin()">Düzenle</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of yatirimTalepleri; let i = index">
+                  <td>
+                    {{ i + (activePage - 1) * filterModel.recordsPerPage + 1 }}
+                  </td>
+                  <td>{{ item.talepNoWithFormated }}</td>
+                  <td *ngIf="isAdmin()">{{ item.tedarikciAdi }}</td>
+                  <td *ngIf="isAdmin()">{{ item.bankaAdi }}</td>
+                  <td>{{ item.webSiteUrl }}</td>
+                  <td>{{ item.webSiteTransactionId }}</td>
+                  <td>{{ item.userId }}</td>
+                  <td>{{ item.userName }}</td>
+                  <td>{{ item.adSoyad }}</td> 
+                  <td *ngIf="isAdmin()">{{ item.hesapSahibi }}</td>
+                  <td *ngIf="isAdmin()">{{ item.hesapNo }}</td>
+                  <td>
+                    {{
+                      item.tutar | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </td>
+                  
+                  <td>
+                    {{ item.kayitTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
+                  </td>
+                  <td *ngIf="isAdmin()">
+                    <button
+                      *appHasAuthorization="
+                        Authorization.BekleyenYatirimlarDuzenleyebilir
+                      "
+                      class="btn-warning btn btn-xs mr-2"
+                      (click)="startEditPrice(item.id)"
+                    >
+                      Düzenle
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          
+          <hr />
+          <app-pagination
+            [activePage]="activePage"
+            [totalPages]="totalPages"
+            (pageChanged)="getAll($event)"
+          ></app-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button
+    style="display: none"
+    data-toggle="modal"
+    data-target="#updatePriceModal"
+    #updatePriceModalButton
+  >
+    Open Update Price Moda
+  </button>
+
+  <div
+    class="modal inmodal fade"
+    id="updatePriceModal"
+    tabindex="-1"
+    role="dialog"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form (ngSubmit)="submitUpdatePriceForm()" #updatePriceForm="ngForm">
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="baslik"> Banka Adı </label>
+                  <div class="form-control" style="background-color: #e9ecef">
+                    {{ updatePriceModel.bankaAdi }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="baslik"> Web Site </label>
+                  <div class="form-control" style="background-color: #e9ecef">
+                    {{ updatePriceModel.webSiteUrl }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="baslik"> Ad Soyad </label>
+                  <div class="form-control" style="background-color: #e9ecef">
+                    {{ updatePriceModel.adSoyad }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="baslik"> Yöntem Tipi </label>
+                  <div class="form-control" style="background-color: #e9ecef">
+                    {{ updatePriceModel.yontemTipi }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="baslik"> Hesap Sahibi </label>
+                  <div class="form-control" style="background-color: #e9ecef">
+                    {{ updatePriceModel.hesapSahibi }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="baslik"> Hesap No </label>
+                  <div class="form-control" style="background-color: #e9ecef">
+                    {{ updatePriceModel.hesapNo }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="baslik"> İşlem Tipi </label>
+                  <div class="form-control" style="background-color: #e9ecef">
+                    {{ updatePriceModel.islemTipi === 1 ? "Yatırım" : "Çekim" }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="baslik"> Durum </label>
+                  <div class="form-control" style="background-color: #e9ecef">
+                    {{ getDurumText(updatePriceModel.durum) }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="baslik"> Kayıt Tarihi </label>
+                  <div class="form-control" style="background-color: #e9ecef">
+                    {{
+                      updatePriceModel.kayitTarihi
+                        | date : "dd/MM/yyyy HH:mm:ss"
+                    }}
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="tutar">Tutar</label>
+                  <input
+                    id="tutar"
+                    name="tutar"
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="updatePriceModel.tutar"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-white"
+              #updatePriceModalKapatButton
+              data-dismiss="modal"
+              (click)="closeUpdatePriceModalKapat()"
+            >
+              Kapat
+            </button>
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

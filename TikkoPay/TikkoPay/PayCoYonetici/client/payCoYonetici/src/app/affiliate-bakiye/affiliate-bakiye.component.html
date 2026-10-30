@@ -1,0 +1,126 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-sm-4">
+        <h2>Affiliate Bakiye</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a [routerLink]="['/']">Ana Sayfa</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Affiliate Bakiye</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Affiliate Bakiye</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="filterAffiliateId"> Affiliate
+                                    </label>
+                                    <select
+                                        id="selectedAffiliate"
+                                        name="selectedAffiliate"
+                                        [(ngModel)]="selectedAffiliate"
+                                        (change)="getAffiliateWebsites(); filterChanged()"
+                                        class="form-control">
+                                        <option value="" *ngIf="!isAffiliateKullanicisi">Tümünü Liste</option>
+                                        <option
+                                            *ngFor="let item of affiliateDropDownModel"
+                                            [value]="item.id">
+                                            {{ item.unvan }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="selectedWebsiteId"> Website
+                                    </label>
+                                    <select
+                                        id="selectedWebsiteId"
+                                        name="selectedWebsiteId"
+                                        [(ngModel)]="selectedWebsiteId"
+                                        (change)="filterChanged()"
+                                        class="form-control">
+                                        <option value>Tümünü Liste</option>
+                                        <option
+                                            *ngFor="let item of webSiteDropDownModel"
+                                            [value]="item.id">
+                                            {{ item.webSiteUrl }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Sıra No</th>
+                                <th>Affiliate</th>
+                                <th>Yatırım Komisyon Oranı</th>
+                                <th>Çekim Komisyon Oranı</th>
+                                <th>Toplam Yatırım</th>
+                                <th>Toplam Yatırım Komisyon</th>
+                                <th>Toplam Çekim</th>
+                                <th>Toplam Çekim Komisyon</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                *ngFor="let item of affiliateBakiyeList; let i = index">
+                                <td>{{ i + 1 }}</td>
+                                <td>{{ item.unvan }}</td>
+                                <td>
+                                    {{ item.yaririmKomisyonOrani }} %
+                                </td>
+                                <td>
+                                    {{ item.cekimKomisyonOrani }} %
+                                </td>
+                                <td>
+                                    {{ item.toplamYatirim | currency : "TRY" : "symbol-narrow" : "1.2-2"}}
+                                </td>
+                                <td>
+                                    {{ item.toplamYatirimKomisyon | currency : "TRY" : "symbol-narrow" : "1.2-2"}}
+                                </td>
+                                <td>
+                                    {{ item.toplamCekim | currency : "TRY" : "symbol-narrow" : "1.2-2"}}
+                                </td>
+                                <td>
+                                    {{ item.toplamCekimKomisyon | currency : "TRY" : "symbol-narrow" : "1.2-2"}}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,178 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-sm-4">
+        <h2>Tedarikçi Mutabakat</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a [routerLink]="['/']">Ana Sayfa</a>
+            </li>
+            <li class="breadcrumb-item active">
+                <strong>Tedarikçi Mutabakat</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Tedarikçi Mutabakat</h5>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <form>
+                        <div class="row">
+
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="font-normal">Mutabakat Tarihi</label>
+                                    <div class="input-group date">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input type="text" class="form-control dateControl" autocomplete="off"
+                                            id="mutabakatTarihi" name="mutabakatTarihi" #mutabakatTarihi
+                                            [(ngModel)]="tedarikciMutabakatFilter.mutabakatTarihi" >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-100 d-none d-md-block"></div>
+
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <button style="margin-top: 26px;" class="btn btn-primary "
+                                        (click)="filterChanged(mutabakatTarihi.value)">
+                                        Ara
+                                    </button>
+                                    <button style="margin-left: 10px; margin-top: 26px;" class="btn btn-warning "
+                                        (click)="filterChanged()">
+                                        Filtreyi Temizle
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content">
+
+                    <div class="table-responsive">
+                        <table class=" table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Sıra No</th>
+                                    <th>Tedarikci</th>
+                                    <th>Devir</th>
+                                    <th>Toplam Yatırım</th>
+                                    <th>Toplam Yatırım Komisyon</th>
+                                    <th>Toplam Çekim</th>
+                                    <th>Toplam Çekim Komisyon</th>
+                                    <th>Alınan Ödeme</th>
+                                    <th>Ödeme Komisyonu</th>
+                                    <th>Yapılan Ödeme</th>
+                                    <th>Manuel Alınan Ödeme</th>
+                                    <th>Manuel Yapılan Ödeme</th>
+                                    <th>Virman (+)</th>
+                                    <th>Virman (-)</th>
+                                    <th>Kasa</th>
+                                    <th>Mutabakat Tarihi</th>
+                                    
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of tedarikciMutabakatlari; let i = index">
+                                    <td>{{ (i) + 1 }}</td>
+
+                                    <td>
+                                        {{item.tedarikciAdi}}
+                                    </td>
+
+                                    <td>
+                                        {{ item.devir | currency : "TRY" : "symbol-narrow" : "1.2-2"}}
+                                    </td>
+                                    <td>{{ item.toplamYatirim | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                                    <td>{{ item.toplamYatirimKomisyon | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                                    <td>{{ item.toplamCekim | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                                    <td>{{ item.toplamCekimKomisyon | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                                    <td>{{ item.toplamGiris | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                                    <td>{{ item.toplamGirisKomisyon | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                                    <td>{{ item.toplamCikis | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                                    <td>{{ item.toplamGirisManual | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                                    <td>{{ item.toplamCikisManual | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                                    <td>{{ item.toplamVirmanGiris | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                                    <td>{{ item.toplamVirmanCikis | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                                    <td>{{ item.kasa | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                                    <td>
+                                        {{ item.mutabakatTarihi | date : "dd/MM/yyyy" }}
+                                    </td>
+                                    
+                                    <td>
+                                        <button class="btn btn-primary btn-xs" (click)="openDetailsModal(item, i)">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Tedarikçi Mutabakat Detayları</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" *ngIf="selectedItem">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Tedarikci:</strong> {{ selectedItem.tedarikciAdi }}</p>
+                        <p><strong>Devir:</strong> {{ selectedItem.devir | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</p>
+                        <p><strong>Toplam Yatırım:</strong> {{ selectedItem.toplamYatirim | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</p>
+                        <p><strong>Toplam Yatırım Komisyon:</strong> {{ selectedItem.toplamYatirimKomisyon | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</p>
+                        <p><strong>Toplam Çekim:</strong> {{ selectedItem.toplamCekim | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</p>
+                        <p><strong>Toplam Çekim Komisyon:</strong> {{ selectedItem.toplamCekimKomisyon | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</p>
+                        <p><strong>Alınan Ödeme:</strong> {{ selectedItem.toplamGiris | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</p>
+                        <p><strong>Ödeme Komisyonu:</strong> {{ selectedItem.toplamGirisKomisyon | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Yapılan Ödeme:</strong> {{ selectedItem.toplamCikis | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</p>
+                        <p><strong>Manuel Alınan Ödeme:</strong> {{ selectedItem.toplamGirisManual | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</p>
+                        <p><strong>Manuel Yapılan Ödeme:</strong> {{ selectedItem.toplamCikisManual | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</p>
+                        <p><strong>Virman (+):</strong> {{ selectedItem.toplamVirmanGiris | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</p>
+                        <p><strong>Virman (-):</strong> {{ selectedItem.toplamVirmanCikis | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</p>
+                        <p><strong>Kasa:</strong> {{ selectedItem.kasa | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</p>
+                        <p><strong>Mutabakat Tarihi:</strong> {{ selectedItem.mutabakatTarihi | date : "dd/MM/yyyy" }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="copyToClipboard()">Kopyala</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>

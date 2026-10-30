@@ -1,0 +1,70 @@
+.success-card {
+    max-width: 450px;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+/* Success Icon */
+.success-icon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background: #f0fdf4;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--success-color);
+    animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Success Message */
+.success-title {
+    color: #1f2937;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.success-message {
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Transaction Details */
+.transaction-details {
+    background-color: var(--bg-light);
+    border-radius: 0.75rem;
+}
+
+/* Return Button */
+.return-btn {
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.return-btn:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}

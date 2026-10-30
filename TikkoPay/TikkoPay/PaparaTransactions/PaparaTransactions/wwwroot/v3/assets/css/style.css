@@ -1,0 +1,141 @@
+:root {
+    --orange-primary: #ff6b35;
+    --orange-secondary: #ff9f1c;
+    --orange-light: #ffd6c0;
+}
+
+.payment-card {
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+}
+
+.bg-orange {
+    background-color: var(--orange-primary);
+}
+
+.text-orange {
+    color: var(--orange-primary) !important;
+}
+
+.btn-outline-orange {
+    color: var(--orange-primary);
+    border-color: var(--orange-primary);
+}
+
+.btn-outline-orange:hover {
+    color: white;
+    background-color: var(--orange-primary);
+    border-color: var(--orange-primary);
+}
+
+.gradient-button {
+    background: linear-gradient(45deg, var(--orange-primary), var(--orange-secondary));
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.gradient-button:hover {
+    background: linear-gradient(45deg, var(--orange-secondary), var(--orange-primary));
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);
+}
+
+.gradient-button:active {
+    transform: translateY(0);
+}
+
+.copy-btn:focus {
+    box-shadow: none;
+}
+
+.copy-btn.copied {
+    background-color: var(--orange-primary);
+    color: white;
+    border-color: var(--orange-primary);
+}
+
+.form-control:read-only {
+    background-color: #fff;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: var(--orange-light);
+}
+
+.success-animation {
+    animation: scaleIn 0.3s ease-in-out;
+}
+
+.header-icon {
+    font-size: 1.75rem;
+}
+
+.welcome-section {
+    background-color: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.timer-container {
+    background-color: var(--orange-light);
+    padding: 0.75rem;
+    border-radius: 8px;
+    min-width: 120px;
+}
+
+.timer-display {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+#paymentButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.loading-text, .normal-text {
+    transition: opacity 0.3s ease;
+}
+
+.alert-warning {
+    background-color: var(--orange-light);
+    border-color: var(--orange-secondary);
+    color: var(--orange-primary);
+}
+
+.modal-static {
+    transform: none !important;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0.5rem;
+    }
+    
+    .header-icon {
+        font-size: 1.5rem;
+    }
+
+    .timer-container {
+        min-width: 100px;
+        padding: 0.5rem;
+    }
+
+    .timer-display {
+        font-size: 1.25rem;
+    }
+}

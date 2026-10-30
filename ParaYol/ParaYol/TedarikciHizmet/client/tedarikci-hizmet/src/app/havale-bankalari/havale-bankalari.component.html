@@ -1,0 +1,305 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-sm-4">
+    <h2>Havale Bankaları</h2>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/']">Ana Sayfa</a>
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>Havale Bankaları</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<button style="display: none" data-toggle="modal" data-target="#havaleBankaEkleModal" #havaleBankaEkleModalButton>
+  Open Havale Banka Ekle Moda
+</button>
+
+<div class="wrapper wrapper-content">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Havale Bankları</h5>
+          <div class="ibox-tools">
+            <button class="btn btn-primary btn-xs" (click)="openHavaleBankaEkleModal()">
+              Yeni Kayıt Ekle
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <form>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="baslik"> Banka </label>
+                  <select id="filterBankaId" name="filterBankaId" [(ngModel)]="havaleBankaFilter.bankaId"
+                    (change)="filterChanged()" class="form-control">
+                    <option value>Tümünü Liste</option>
+                    <option *ngFor="let item of bankalarDropDownModel" [value]="item.id">
+                      {{ item.baslik }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="baslik"> Arama </label>
+                  <input type="text" class="form-control" id="filterSearchText" name="filterSearchText"
+                    [(ngModel)]="havaleBankaFilter.searchText" (keydown.enter)="filterChanged()" />
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="baslik"> Durum </label>
+                  <select id="filterHavaleBankalariDurumFilter" name="filterHavaleBankalariDurumFilter"
+                    [(ngModel)]="havaleBankaFilter.havaleBankalariDurumFilter" (change)="filterChanged()"
+                    class="form-control">
+                    <option value="0" selected>Tümünü Liste</option>
+                    <option value="1">Aktif</option>
+                    <option value="2">Pasif</option>
+                  </select>
+                </div>
+              </div>
+              <div class="w-100 d-none d-md-block"></div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <button style="margin-top: 26px" class="btn btn-primary" (click)="filterChanged()">
+                    Ara
+                  </button>
+                  <button style="margin-left: 10px; margin-top: 26px" class="btn btn-warning" (click)="
+                        havaleBankaFilter.tedarikciId = '';
+                        havaleBankaFilter.bankaId = '';
+                        havaleBankaFilter.searchText = '';
+                        havaleBankaFilter.havaleBankalariDurumFilter = 0;
+                        filterChanged()
+                      ">
+                    Filtreyi Temizle
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Sıra No</th>
+                  <th>Tedarikci</th>
+                  <th>Banka Adı</th>
+                  <th>Hesap Sahibi</th>
+                  <th>Hesap No</th>
+                  <th>Hesapa Yatırılabilecek En Düşük Tutar</th>
+                  <th>Hesapa Yatırılabilecek En Yüksek Tutar</th>
+                  <th>Max Yatırım Adedi</th>
+                  <th>Max Yatırım Toplamı</th>
+                  <th>Onaylanan Yatırım Adedi</th>
+                  <th>Onaylanan Yatırım Toplamı</th>
+                  <th>Durum</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of havaleBankaList; let i = index">
+                  <td>
+                    {{
+                    i + (activePage - 1) * havaleBankaFilter.recordsPerPage + 1
+                    }}
+                  </td>
+                  <td>{{ item.tedarikciAdi }}</td>
+                  <td>{{ item.bankaAdi }}</td>
+                  <td>{{ item.hesapSahibi }}</td>
+                  <td>{{ item.hesapNo }}</td>
+                  <td>{{ item.hesapMinTutar | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                  <td>{{ item.hesapMaxTutar | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                  <td>{{ item.maxYatirimAdedi }}</td>
+                  <td>{{ item.maxYatirimToplami | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                  <td>{{ item.onaylananYatirimAdedi }}</td>
+                  <td>{{ item.onaylananYatirimToplami | currency : "TRY" : "symbol-narrow" : "1.2-2"}}</td>
+                  <td>
+                    <span *ngIf="item.durum" class="label label-primary">Aktif</span>
+
+                    <span *ngIf="!item.durum" class="label label-danger">Pasif</span>
+                  </td>
+                  <td class="text-right footable-visible footable-last-column">
+                    <div>
+                      <button class="btn-primary btn btn-xs mr-2" (click)="startEdit(item.id)">
+                        Düzenle
+                      </button>
+                    </div>
+                  </td>
+                  <td>
+                    <button class="btn-danger btn btn-xs" data-toggle="modal" data-target="#havaleBankaSilModal"
+                      (click)="startDelete(item.id)">
+                      Sil
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+          <hr />
+          <app-pagination [activePage]="activePage" [totalPages]="totalPages"
+            (pageChanged)="getAll($event)"></app-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal inmodal fade" id="havaleBankaEkleModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form (ngSubmit)="submitCreateHavaleBankaForm(havaleBankaForm)" #havaleBankaForm="ngForm">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="baslik">
+                  Banka <span class="text-danger">*</span>
+                </label>
+                <select id="bankaId" name="bankaId" [(ngModel)]="havaleBankaCreateModel.bankaId"
+                  (ngModelChange)="onBankaChange($event)" required class="form-control">
+                  <option value disabled selected>Banka Seçin</option>
+                  <option *ngFor="let banka of bankalarDropDownModel" [value]="banka.id">
+                    {{ banka.baslik }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="baslik">
+                  Hesap Sahibi <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="hesapSahibi" name="hesapSahibi" required
+                  [(ngModel)]="havaleBankaCreateModel.hesapSahibi" required />
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="baslik">
+                  Hesap No <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="hesapNo" name="hesapNo" [disabled]="!isCreate()" required
+                  [(ngModel)]="havaleBankaCreateModel.hesapNo" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Hesapa Yatırılabilecek En Düşük Tutar <span class="text-danger">*</span>
+                </label>
+
+                <select id="hesapMinTutar" name="hesapMinTutar" class="form-control" required disabled="disabled"
+                  [(ngModel)]="havaleBankaCreateModel.hesapMinTutar">
+                  <option value="" disabled selected>Min Tutar Seçin</option>
+                  <option *ngFor="let min of hesapMinTutarOptions" [value]="min">
+                    {{ min | currency:'TRY':'symbol-narrow':'1.0-0' }}
+                  </option>
+                </select>
+
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Hesapa Yatırılabilecek En Yüksek Tutar <span class="text-danger">*</span>
+                </label>
+
+                <select id="hesapMaxTutar" name="hesapMaxTutar" class="form-control" required disabled="disabled"
+                  [(ngModel)]="havaleBankaCreateModel.hesapMaxTutar">
+                  <option value="" disabled selected>Max Tutar Seçin</option>
+                  <option *ngFor="let max of hesapMaxTutarOptions" [value]="max">
+                    {{ max | currency:'TRY':'symbol-narrow':'1.0-0' }}
+                  </option>
+                </select>
+
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Max Yatırım Adedi <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="maxYatirimAdedi" name="maxYatirimAdedi" autocomplete="off"
+                  required [(ngModel)]="havaleBankaCreateModel.maxYatirimAdedi" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Max Yatırım Toplamı <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="maxYatirimToplami" name="maxYatirimToplami" autocomplete="off" required
+                  [(ngModel)]="havaleBankaCreateModel.maxYatirimToplami" />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="durum">Durum</label>
+                <div class="form-check abc-checkbox">
+                  <input class="form-check-input" type="checkbox" id="durum" name="durum"
+                    [(ngModel)]="havaleBankaCreateModel.durum" />
+                  <label class="form-check-label" for="durum"> Aktif </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-white" #havaleBankaEkleModalKapatButton data-dismiss="modal"
+            (click)="closeHavaleBankaEkleModalKapat()">
+            Kapat
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isCreating">
+            <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isCreating"></i>Kaydet
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal inmodal fade" id="havaleBankaSilModal" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h3>Kaydı silmek istediğinize emin misiniz?</h3>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-white" data-dismiss="modal" #havaleBankaSilModalKapatButton
+          (click)="cancelDelete()">
+          Kapat
+        </button>
+        <button type="submit" class="btn btn-danger" [disabled]="isDeleting" (click)="deleteRecord()">
+          <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isDeleting"></i>Sil
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

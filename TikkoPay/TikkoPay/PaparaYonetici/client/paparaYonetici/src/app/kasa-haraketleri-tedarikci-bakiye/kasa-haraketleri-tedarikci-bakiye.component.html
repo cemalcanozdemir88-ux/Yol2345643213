@@ -1,0 +1,379 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-sm-4">
+    <h2>Tedarikci Bakiye</h2>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/']">Ana Sayfa</a>
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>Tedarikci Bakiye</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="wrapper wrapper-content">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-title">
+          <h5>Tedarikci Bakiye</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <form>
+            <div class="row">
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="filterTedarikciId"> Tedarikçi </label>
+                  <select
+                    id="selectedTedarikci"
+                    name="selectedTedarikci"
+                    [(ngModel)]="selectedTedarikci"
+                    (change)="filterChanged()"
+                    class="form-control">
+                    <option value>Tümünü Liste</option>
+                    <option
+                      *ngFor="let item of tedarikcilerDronDownModel"
+                      [value]="item.id">
+                      {{ item.unvan }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Tedarikci</th>
+                  <th>Toplam Yatırım</th>
+                  <th>Toplam Yatırım Komisyon</th>
+                  <th>Toplam Çekim</th>
+                  <th>Toplam Çekim Komisyon</th>
+                  <th>Toplam Tedarikçiden Alınan Ödeme</th>
+                  <th>Toplam Tedarikçiye Yapılan Ödeme</th>
+                  <th>Anlık Bakiye</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of tedarikciBakiyeList; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ item.unvan }}</td>
+                  <td>
+                    {{
+                    item.toplamYatirim
+                    | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </td>
+                  <td>
+                    {{
+                    item.toplamYatirimKomisyon
+                    | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </td>
+                  <td>
+                    {{
+                    item.toplamCekim
+                    | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </td>
+                  <td>
+                    {{
+                    item.toplamCekimKomisyon
+                    | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </td>
+                  <td>
+                    {{
+                    item.toplamKasaHaraketiGiris
+                    | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </td>
+                  <td>
+                    {{
+                    item.toplamKasaHaraketiCikis
+                    | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </td>
+                  <td>
+                    {{
+                    getAnlikBakiye(item)
+                    | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                    <br />
+                    <span
+                      class="badge badge-warning"
+                      *ngIf="getAnlikBakiye(item) > 0">tedarikçi {{
+                      getAnlikBakiye(item).toFixed(2) | currency : "TRY" : "symbol-narrow" : "1.2-2"}} borçlu
+                    </span>
+  
+                    <span
+                      class="badge badge-primary"
+                      *ngIf="getAnlikBakiye(item) < 0">tedarikçi {{ (-1 *
+                      getAnlikBakiye(item)).toFixed(2) | currency : "TRY" : "symbol-narrow" : "1.2-2"}} alacaklı
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      *appHasAuthorization="Authorization.TedarikciBakiyeAlacakliYapabilir"
+                      class="btn btn-danger btn-sm mr-2"
+                      title="Tedarikçiye Ödeme Yap"
+                      (click)="startEdit(item.id, '2')">
+                      <span class="label label-danger">
+                        <i class="fa fa-minus"></i>
+                      </span>
+                    </button>
+  
+                    <button
+                      *appHasAuthorization="Authorization.TedarikciBakiyeBorcluYapabilir"
+                      class="btn btn-primary btn-sm"
+                      title="Tedarikçiden Ödeme Al"
+                      (click)="startEdit(item.id, '1')">
+                      <span class="label label-primary">
+                        <i class="fa fa-plus"></i>
+                      </span>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button
+  style="display: none"
+  data-toggle="modal"
+  data-target="#kasaHaraketleriEkleModal"
+  #kasaHaraketleriEkleModalButton>
+  Open Kasa Haraketleri Ekle Moda
+</button>
+
+<div
+  class="modal inmodal fade"
+  id="kasaHaraketleriEkleModal"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form
+        (ngSubmit)="submitCreateKasaHaraketleriForm(kasaHaraketleriForm)"
+        #kasaHaraketleriForm="ngForm">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div
+                class="alert alert-warning"
+                *ngIf="kasaHaraketleriCreateModel.islemTipi == 1">
+                Tedarikçiden ödeme alıyorsunuz, bakiyesine eksi değer eklenecektir. Tedarikçinin kasasından çıkış yapılıp sizin kasanıza giriş yapılacaktır.
+              </div>
+              <div
+                class="alert alert-warning"
+                *ngIf="kasaHaraketleriCreateModel.islemTipi == 2">
+                Tedarikçiye ödeme yapıyorsunuz, bakiyesine artı değer eklenecektir. Sizin kasadan çıkış yapılıp tedarikçinin kasasına giriş yapılacaktır.
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="baslik">
+                  Tedarikçi <span class="text-danger">*</span>
+                </label>
+                <select
+                  id="tedarikciId"
+                  name="tedarikciId"
+                  [(ngModel)]="kasaHaraketleriCreateModel.tedarikciId"
+                  required
+                  disabled="true"
+                  class="form-control">
+                  <option value disabled selected>Tedarikçi Seçin</option>
+                  <option
+                    *ngFor="let item of tedarikcilerDronDownModel"
+                    [value]="item.id">
+                    {{ item.unvan }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="baslik">
+                  İşlem Tipi <span class="text-danger">*</span>
+                </label>
+                <select
+                  id="islemTipi"
+                  name="islemTipi"
+                  [(ngModel)]="kasaHaraketleriCreateModel.islemTipi"
+                  required
+                  disabled="true"
+                  class="form-control">
+                  <option [value]="1">Tedarikçiden Ödeme Al</option>
+                  <option [value]="2">Tedarikçiye Ödeme Yap</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="baslik">
+                  Tutar(TL) <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="tutar"
+                  name="tutar"
+                  currencyMask
+                  [(ngModel)]="kasaHaraketleriCreateModel.tutar"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="baslik">
+                  Döviz Kuru <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="dovizKuru"
+                  name="dovizKuru"
+                  currencyMask
+                  [options]="{ prefix: 'TRY '}"
+                  [(ngModel)]="kasaHaraketleriCreateModel.dovizKuru"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="baslik">
+                  Usdt Miktar <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="usdtMiktar"
+                  name="usdtMiktar"
+                  currencyMask
+                  [options]="{ prefix: '$ ' }"
+                  [(ngModel)]="kasaHaraketleriCreateModel.usdtMiktar"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Usdt Adres <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="usdtAdres"
+                  name="usdtAdres"
+                  [(ngModel)]="kasaHaraketleriCreateModel.usdtAdres"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Usdt Txt No <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="usdtTxtNo"
+                  name="usdtTxtNo"
+                  [(ngModel)]="kasaHaraketleriCreateModel.usdtTxtNo"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Resim Url <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="resimUrl"
+                  name="resimUrl"
+                  [(ngModel)]="kasaHaraketleriCreateModel.resimUrl"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Açıklama <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="aciklama"
+                  name="aciklama"
+                  [(ngModel)]="kasaHaraketleriCreateModel.aciklama"
+                  required />
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="baslik">
+                  Durum <span class="text-danger">*</span>
+                </label>
+                <select
+                  id="durum"
+                  name="durum"
+                  [(ngModel)]="kasaHaraketleriCreateModel.durum"
+                  required
+                  class="form-control">
+                  <option [value]="1">Bekliyor</option>
+                  <option [value]="2">Onaylandı</option>
+                  <option [value]="3">Red</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-white"
+            #kasaHaraketleriEkleModalKapatButton
+            data-dismiss="modal"
+            (click)="closeKasaHaraketleriEkleModalKapat()">
+            Kapat
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isCreating">
+            <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isCreating"></i>Kaydet
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

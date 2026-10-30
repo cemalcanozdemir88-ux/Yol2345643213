@@ -1,0 +1,171 @@
+﻿@using NorthHavaleTransactions.Models.ViewModels
+@model BankListViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>@Model.WebsiteTitle Havale</title>
+
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="content-language" content="tr">
+    <meta name="resource-type" content="document">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                primary: {
+                  DEFAULT: '#4299E1',
+                  light: '#EBF8FF',
+                  dark: '#3182CE'
+                }
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        @@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #EBF8FF 0%, #F0F9FF 100%);
+            min-height: 100vh;
+        }
+
+        .bank-card {
+            background: white;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+            .bank-card:hover {
+                border-color: #4299E1;
+                box-shadow: 0 4px 12px rgba(66, 153, 225, 0.15);
+            }
+
+            .bank-card.selected {
+                border-color: #4299E1;
+                background: #EBF8FF;
+                box-shadow: 0 4px 12px rgba(66, 153, 225, 0.2);
+            }
+
+        .bank-icon {
+            background: linear-gradient(135deg, #4299E1 0%, #3182CE 100%);
+            border-radius: 8px;
+        }
+
+        .header-container {
+            background: linear-gradient(135deg, #4299E1 0%, #3182CE 100%);
+            border-radius: 16px;
+        }
+
+        .loading-overlay {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+
+</head>
+<body class="bg-gray-50">
+
+    <div class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-6xl mx-auto px-4 py-6">
+            <div class="text-center">
+                <div class="flex items-center justify-center mb-3">
+
+                    <h1 class="text-gray-900 text-3xl font-bold">Test Site Havale</h1>
+                </div>
+                <p class="text-gray-600 text-lg">Güvenli ve hızlı havale işlemleri için bankanızı seçin</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-4 py-8">
+
+        <!-- Banks Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4" id="banksGrid">
+            @foreach (var item in Model.Bankalar)
+            {
+                <div data-href="@Url.Action("Index", "Home", new { transaction = Model.TransactionId, banka = item.Id }).Replace("/Home/Index", "/")"
+                     class="bank-card bg-white border-2 rounded-lg p-6 text-center cursor-pointer transition-all duration-200 hover:border-primary hover:shadow-md border-gray-200">
+                    <div class="w-12 h-12 bg-primary rounded-lg mx-auto mb-3 flex items-center justify-center">
+                        <i class="fas fa-university text-white"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800 text-sm mb-1">@item.Baslik</h3>
+                    <p class="text-gray-500 text-xs">Güvenli havale</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 shadow-xl text-center max-w-sm mx-4">
+            <div class="w-16 h-16 bg-primary rounded-lg mx-auto mb-4 flex items-center justify-center">
+                <i class="fas fa-university text-white text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Banka Seçiliyor...</h3>
+            <p class="text-gray-600 mb-4" id="selectedBankName">Lütfen bekleyiniz</p>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-primary h-2 rounded-full transition-all duration-1000" style="width: 0%" id="progressBar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+
+          let redirectUrl = "";
+
+          $(document).on('click', '.bank-card', function() {
+            const $this = $(this);
+
+            const bankName = $this.find('h3').text();
+            redirectUrl = $this.data('href');
+
+            $('.bank-card').removeClass('selected border-primary bg-primary-light').addClass('border-gray-200');
+
+            $this.addClass('selected border-primary bg-primary-light').removeClass('border-gray-200');
+
+            setTimeout(function() {
+              showLoading(bankName);
+            }, 50);
+
+          });
+
+          function showLoading(bankName) {
+            $('#selectedBankName').text(bankName + ' seçildi');
+            $('#loadingModal').removeClass('hidden');
+
+            $('#progressBar').animate({ width: '100%' }, 100);
+
+            setTimeout(function() {
+              location.href = redirectUrl;
+            }, 500);
+          }
+
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,25 @@
+﻿using TikkoPayYonetici.Core.Enums;
+
+namespace TikkoPayYonetici.Core.DTOs.WebSiteKasaHaraketleri
+{
+    public class WebSiteKasaHaraketleriListDto
+    {
+        public Guid Id { get; set; }
+        public Guid? TopId { get; set; }
+        public Guid WebSitesiId { get; set; }
+        public string WebSiteKisaBaslik { get; set; } = string.Empty;
+        public string Aciklama { get; set; }
+        public decimal Tutar { get; set; }
+        public decimal DovizKuru { get; set; }
+        public decimal UsdtMiktar { get; set; }
+        public string UsdtAdres { get; set; }
+        public string UsdtTxtNo { get; set; }
+        public string ResimUrl { get; set; }
+        public Durum Durum { get; set; }
+        public DateTime KayitTarihi { get; set; }
+        public string KaydedenKullanici { get; set; }
+        public DateTime? GuncellemeTarihi { get; set; }
+        public string GuncelleyenKullanici { get; set; }
+        public KasaHaraketleriIslemTipi IslemTipi { get; set; }
+    }
+}

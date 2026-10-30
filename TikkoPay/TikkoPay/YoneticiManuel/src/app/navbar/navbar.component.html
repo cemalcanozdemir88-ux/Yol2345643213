@@ -1,0 +1,70 @@
+<nav class="navbar-default navbar-static-side" role="navigation">
+  <div class="sidebar-collapse">
+    <ul class="nav metismenu" id="side-menu">
+      <li class="nav-header">
+        <div class="dropdown profile-element" style="text-align: center">
+          <img
+            alt="image"
+            class="rounded-circle"
+            src="assets/img/profile-icon.png" />
+          <a
+            data-bs-toggle="dropdown"
+            class="dropdown-toggle"
+            style="color: #dfe4ed">
+            <span class="block m-t-xs font-bold">{{ getName() }}</span>
+          </a>
+        </div>
+        <div class="logo-element">+</div>
+      </li>
+      <li>
+        <a [routerLink]="['/']">
+          <i class="fa fa-home active"></i>
+          <span class="nav-label">Ana Sayfa</span>
+        </a>
+      </li>
+
+      <li routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-line-chart"></i>
+          <span class="nav-label"> Yatırımlar </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active">
+            <a [routerLink]="['/bekleyenyatirimlar']">Bekleyen Yatırımlar</a>
+          </li>
+          <li routerLinkActive="active">
+            <a [routerLink]="['/onayliyatirimlar']">Onaylı Yatırımlar</a>
+          </li>
+          <li routerLinkActive="active">
+            <a [routerLink]="['/iptalyatirimtalepleri']">İptal Edilen
+              Yatırımlar</a>
+          </li>
+        </ul>
+      </li>
+
+
+      <li routerLinkActive="active">
+        <a href="javascript:void(0)">
+          <i class="fa fa-university"></i>
+          <span class="nav-label"> Banka Yönetimi </span>
+          <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level">
+          <li routerLinkActive="active">
+            <a [routerLink]="['/havalebankalari']">Havale Bankaları</a>
+          </li>
+        </ul>
+      </li>
+
+
+      <li>
+        <a [routerLink]="['profile/changepassword']">
+          <i class="fa fa-key active"></i>
+          <span class="nav-label">Şifre Değiştir</span>
+        </a>
+      </li>
+
+    </ul>
+  </div>
+</nav>

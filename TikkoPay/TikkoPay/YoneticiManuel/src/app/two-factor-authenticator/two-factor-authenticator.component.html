@@ -1,0 +1,40 @@
+
+<div class="middle-box text-center loginscreen" [ngStyle]="{'height.px': barcodeImageUrl.length > 0 ? 615 : 260, 'background-color': '#fff', 'margin-top.px': 20}">
+    <div class="container" *ngIf="hasError">
+        <div class="alert alert-danger">
+            {{errorText}}
+        </div>
+    </div>
+    <div class="container" *ngIf="!hasError">
+        <div *ngIf="barcodeImageUrl.length > 0">
+            <img class="mb-4" [src]="barcodeImageUrl" width="270" height="270" >
+            <div style="word-wrap: break-word;">Secret Key: {{ setupCode }}</div>
+        </div>
+        <div>
+            <h2 class="text-info">2FA Security</h2>
+            <p class="mb-4">Enter 6-digits code from the authenticatior app.</p>
+            <form class="m-t" (ngSubmit)="onSubmit()">
+                <div class="form-group">
+                    <input
+                      type="text"
+                      id="enteredCode"
+                      name="enteredCode"
+                      placeholder="Enter the Code"
+                      class="form-control"
+                      [(ngModel)]="enteredCode"
+                      required
+                    />
+                  </div>
+                  <button
+                  type="submit"
+                  [disabled]="isLoading"
+                  class="btn btn-primary block full-width m-b"
+                >
+                  <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isLoading"></i>Giriş Yap
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+

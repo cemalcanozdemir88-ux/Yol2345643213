@@ -1,0 +1,596 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+  <div class="col-sm-4">
+    <h2>Onaylı Çekimler</h2>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a [routerLink]="['/']">Ana Sayfa</a>
+      </li>
+      <li class="breadcrumb-item active">
+        <strong>Onaylı Çekimler</strong>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<div class="wrapper wrapper-content">
+  <div class="row" *ngIf="isAdmin()">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <div class="row">
+
+            <div class="col-lg-4">
+              <div class="widget red-bg">
+                <h3>Toplam Çekim Tutarı</h3>
+                <h3 class="m-xs">
+                  {{
+                  toplamTutar | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                  }}
+                </h3>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="widget lazur-bg" style="filter: saturate(0.5)">
+                <h3>Toplam Komisyon Tutarı</h3>
+                <h3 class="m-xs">
+                  {{
+                  tedarikciToplamKomisyon
+                  | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                  }}
+                </h3>
+              </div>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="widget yellow-bg" style="filter: saturate(0.5)">
+                <h3>Ortalama Onay Suresi</h3>
+                <h3 class="m-xs">
+                  {{ortalamSureText }}
+                </h3>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <form>
+            <div class="row">
+              <div class="col-md-3" *ngIf="isAdmin()">
+                <div class="form-group">
+                  <label for="baslik"> Tedarikçi </label>
+                  <select id="filterTedarikciId" name="filterTedarikciId" [(ngModel)]="filterModel.tedarikciId"
+                    (change)="
+                      filterChanged(
+                        approveDateStart.value,
+                        approveDateEnd.value,
+                        createdDateStart.value,
+                        createdDateEnd.value
+                      )
+                    " class="form-control">
+                    <option value>Tümünü Liste</option>
+                    <option *ngFor="let item of tedarikcilerDronDownModel" [value]="item.id">
+                      {{ item.unvan }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3" *ngIf="isAdmin()">
+                <div class="form-group">
+                  <label for="baslik"> Banka </label>
+                  <select id="filterBankaId" name="filterBankaId" [(ngModel)]="filterModel.bankaId" (change)="
+                      filterChanged(
+                        approveDateStart.value,
+                        approveDateEnd.value,
+                        createdDateStart.value,
+                        createdDateEnd.value
+                      )
+                    " class="form-control">
+                    <option value>Tümünü Liste</option>
+                    <option *ngFor="let item of bankalarDropDownModel" [value]="item.id">
+                      {{ item.baslik }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="baslik"> Web Sitesi </label>
+                  <select id="filterWebSiteId" name="filterWebSiteId" [(ngModel)]="filterModel.webSiteId" (change)="
+                      filterChanged(
+                        approveDateStart.value,
+                        approveDateEnd.value,
+                        createdDateStart.value,
+                        createdDateEnd.value
+                      )
+                    " class="form-control">
+                    <option value *ngIf="!isWebSiteKullanicisi()">
+                      Tümünü Liste
+                    </option>
+                    <option *ngFor="let item of webSiteleriDropDownModel" [value]="item.id">
+                      {{ item.kisaBaslik }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label for="baslik"> Arama </label>
+                  <input type="text" class="form-control" id="filterSearchText" name="filterSearchText"
+                    [(ngModel)]="filterModel.searchText" (keydown.enter)="
+                      filterChanged(
+                        approveDateStart.value,
+                        approveDateEnd.value,
+                        createdDateStart.value,
+                        createdDateEnd.value
+                      )
+                    " />
+                </div>
+              </div>
+              <div class="w-100 d-none d-md-block"></div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="font-normal">Onay Tarihi Başlangıç</label>
+                  <div class="input-group date">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input type="text" class="form-control dateControl" autocomplete="off" id="approveDateStart"
+                      name="approveDateStart" #approveDateStart />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Onay Tarihi Bitiş</label>
+                  <div class="input-group date">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input type="text" class="form-control dateControl" autocomplete="off" id="approveDateEnd"
+                      name="approveDateEnd" #approveDateEnd />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label class="font-normal">Kayıt Tarihi Başlangıç</label>
+                  <div class="input-group date">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input type="text" class="form-control dateControl" autocomplete="off" id="createdDateStart"
+                      name="createdDateStart" [(ngModel)]="filterModel.createdDateStart" #createdDateStart />
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="form-group">
+                  <label>Kayıt Tarihi Bitiş</label>
+                  <div class="input-group date">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input type="text" class="form-control dateControl" autocomplete="off" id="createdDateEnd"
+                      name="createdDateEnd" #createdDateEnd />
+                  </div>
+                </div>
+              </div>
+              <div class="w-100 d-none d-md-block"></div>
+                            <div class="col-md-3">
+                <div class="form-group">
+                  <label for="dekontKontrolDurum">Dekont Kontol Durumu</label>
+                  <select id="dekontKontrolDurum" name="dekontKontrolDurum" [(ngModel)]="filterModel.dekontKontrolDurum"
+                    (change)="filterChanged(approveDateStart.value,approveDateEnd.value,createdDateStart.value,createdDateEnd.value)" class="form-control">
+                    <option value="">Tümünü Liste</option>
+                    <option value="0">Bekliyor</option>
+                    <option value="1">Dekont Doğru</option>
+                    <option value="2">Dekont Hatalı</option>
+                  </select>
+                </div>
+              </div>
+              <div class="w-100 d-none d-md-block"></div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <button style="margin-top: 26px" class="btn btn-primary" (click)="
+                      filterChanged(
+                        approveDateStart.value,
+                        approveDateEnd.value,
+                        createdDateStart.value,
+                        createdDateEnd.value
+                      )
+                    ">
+                    Ara
+                  </button>
+                  <button style="margin-left: 10px; margin-top: 26px" class="btn btn-warning" (click)="
+                      filterModel.tedarikciId = '';
+                      filterModel.bankaId = '';
+                      filterModel.searchText = '';
+                      filterModel.dekontKontrolDurum = '';
+                      approveDateStart.value = '';
+                      approveDateEnd.value = '';
+                      createdDateStart.value = '';
+                      createdDateEnd.value = '';
+                      filterChanged(
+                        approveDateStart.value,
+                        approveDateEnd.value,
+                        createdDateStart.value,
+                        createdDateEnd.value
+                      )
+                    ">
+                    Filtreyi Temizle
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="ibox">
+        <div class="ibox-content">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="float-right">
+                <button style="display: none" data-toggle="modal" data-target="#manuelCekimEkleModal"
+                  #manuelCekimEkleModalButton>
+                  Open Manuel Cekim Ekle Modal
+                </button>
+
+                <button class="btn btn-primary btn-xs mr-2" (click)="openManuelCekimEkleModal()"
+                  *appHasAuthorization="Authorization.OnayliCekimlerManuelCekimlerEkleyebilir">
+                  Manuel Çekim Ekle
+                </button>
+
+                <button *appHasAuthorization="
+                    Authorization.OnayliCekimlerExcelIndirebilir
+                  " class="btn btn-success btn-xs" (click)="downloadExcel()">
+                  Excel İndir
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Talep No</th>
+                  <th *ngIf="isAdmin()">Tedarikci</th>
+                  <th>Yönlendiren Kullanıcı</th>
+                  <th>Onaylayan Kullanıcı</th>
+                  <th>Web Site</th>
+                  <th>UserId</th>
+                  <th>UserName</th>
+                  <th>Üye Ad Soyad</th>
+                  <th *ngIf="isAdmin()">Hesap Sahibi</th>
+                  <th *ngIf="isAdmin()">Hesap No</th>
+                  <th *ngIf="isAdmin()">Hesap No Banka</th>
+                  <th>Tutar</th>
+                  <th *ngIf="isAdmin()">Dekont</th>
+                  <th>Yönlendirilme Tarihi</th>
+                  <th>Onay Tarihi</th>
+                  <th>Kayıt Tarihi</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of cekimTalepleri; let i = index"
+                  [ngClass]="{ 'table-warning': item.yontemTipi === 'Manuel' }">
+                  <td>
+                    {{ i + (activePage - 1) * filterModel.recordsPerPage + 1 }}
+                  </td>
+                  <td>
+                    {{ item.talepNoWithFormated }}
+                    <span class="badge badge-primary font-bold">
+                      {{item.withdrawTransactionId}}
+                    </span>
+                  </td>
+                  <td *ngIf="isAdmin()">
+                    <span *ngIf="item.cokluTedarikciyeYonlendirildi">
+                      <button class="btn btn-link" (click)="startCokluTedarikciModal(item)">
+                        <span class="badge badge-primary font-bold">Çoklu Tedarikçi</span>
+                      </button>
+                    </span>
+                    <span *ngIf="!item.cokluTedarikciyeYonlendirildi">
+                      {{ item.tedarikciAdi }}
+                    </span>
+                  </td>
+                  <td>{{ item.yonlendirenKullanici }}</td>
+                  <td>{{ item.guncelleyenKullanici }}</td>
+                  <td>
+                    {{ item.webSiteUrl }}
+                    <span *ngIf="item.paymentMethodId === 1"
+                      class="label label-warning float-right">{{item.paymentMethodId}}</span>
+                    <span *ngIf="item.paymentMethodId === 2"
+                      class="label label-primary float-right">{{item.paymentMethodId}}</span>
+                  </td>
+                  <td>{{ item.userId }}</td>
+                  <td>{{ item.userName }}</td>
+                  <td>{{ item.adSoyad }}</td>
+                  <td *ngIf="isAdmin()">{{ item.hesapSahibi }}</td>
+                  <td *ngIf="isAdmin()">{{ item.hesapNo }}</td>
+                  <td *ngIf="isAdmin()">{{ item.hesapNoBanka }}</td>
+                  <td>
+                    {{
+                    item.tutar | currency : "TRY" : "symbol-narrow" : "1.2-2"
+                    }}
+                  </td>
+
+                  <td *ngIf="isAdmin()" class="text-center">
+                    <button class="btn btn-link" (click)="startDekontModal(item)">
+                      <span class="badge badge-primary font-bold">Görüntüle</span>
+                    </button>
+
+                    <span>
+                      <i class="fa fa-circle text-navy" *ngIf="item.dekontKontrolDurumu == 1" title="Dekont Doğru"></i>
+                      <i class="fa fa-circle text-danger" *ngIf="item.dekontKontrolDurumu == 2" title="Dekont Hatalı"></i>
+                    </span>
+                    
+
+                  </td>
+                  <td>
+                    {{ item.yonlendirilmeTarihi| date : "dd/MM/yyyy HH:mm:ss" }}
+                  </td>
+                  <td>
+                    {{ item.onayTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
+                  </td>
+                  <td>
+                    {{ item.kayitTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
+                  </td>
+                  <td>
+                    <button *ngIf="
+                        item.yontemTipi === 'Manuel' &&
+                        Authorization.OnayliCekimlerManuelCekimlerSilebilir
+                      " class="btn-danger btn btn-xs" data-toggle="modal" data-target="#yatirimSilModal"
+                      (click)="startDelete(item.id)">
+                      Sil
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <hr />
+          <app-pagination [activePage]="activePage" [totalPages]="totalPages"
+            (pageChanged)="getAll($event)"></app-pagination>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal inmodal fade" id="cokluTedarikciModal" #cokluTedarikciModal tabindex="-1" role="dialog"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Tedarikçi</th>
+                <th>Tutar</th>
+                <th>Durum</th>
+                <th>Dekont</th>
+                <th>Yönlendirilme Tarihi</th>
+                <th>Onay Tarihi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of cekimTedarikciAtamalari; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ item.tedarikciAdi }}</td>
+                <td>{{ item.tutar | currency : "TRY" : "symbol-narrow" : "1.2-2" }}</td>
+                <td>{{ getDurumText(item.durum) }}</td>
+                <td *ngIf="isAdmin()">
+                  <button class="btn btn-link" (click)="startDekontModal(item)">
+                    <span class="badge badge-primary font-bold">Görüntüle</span>
+                  </button>
+                </td>
+                <td>
+                  {{ item.yonlendirilmeTarihi| date : "dd/MM/yyyy HH:mm:ss" }}
+                </td>
+                <td>
+                  {{ item.onayTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-white" data-dismiss="modal">Kapat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal inmodal fade" id="manuelCekimEkleModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form (ngSubmit)="submitManuelCekimEkleForm(manuelCekimEkleForm)" #manuelCekimEkleForm="ngForm">
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="tedarikciId">
+                  Tedarikçi <span class="text-danger">*</span>
+                </label>
+                <select id="tedarikciId" name="tedarikciId" [(ngModel)]="cekimCreateModel.tedarikciId" required
+                  class="form-control">
+                  <option value disabled selected>Tedarikçi Seçin</option>
+                  <option *ngFor="let item of tedarikcilerDronDownModel" [value]="item.id">
+                    {{ item.unvan }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="webSiteId">
+                  Website <span class="text-danger">*</span>
+                </label>
+                <select id="webSiteId" name="webSiteId" [(ngModel)]="cekimCreateModel.webSiteId" required
+                  class="form-control">
+                  <option value disabled selected>Website Seçin</option>
+                  <option *ngFor="let item of webSiteleriDropDownModel" [value]="item.id">
+                    {{ item.kisaBaslik }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="hesapNo"> Hesap No </label>
+                <input type="text" class="form-control" id="hesapNo" name="hesapNo"
+                  [(ngModel)]="cekimCreateModel.hesapNo" />
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="hesapSahibi"> Hesap Sahibi </label>
+                <input type="text" class="form-control" id="hesapSahibi" name="hesapSahibi"
+                  [(ngModel)]="cekimCreateModel.hesapSahibi" />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="adSoyad"> Üye Adı </label>
+                <input type="text" class="form-control" id="adSoyad" name="adSoyad"
+                  [(ngModel)]="cekimCreateModel.adSoyad" />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="adSoyad"> userName </label>
+                <input type="text" class="form-control" id="userName" name="userName"
+                  [(ngModel)]="cekimCreateModel.userName" />
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="form-group">
+                <label for="adSoyad"> userId </label>
+                <input type="text" class="form-control" id="userId" name="userId"
+                  [(ngModel)]="cekimCreateModel.userId" />
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="adSoyad"> Dekont </label>
+                <input type="text" class="form-control" id="iptalAciklama" name="iptalAciklama"
+                  [(ngModel)]="cekimCreateModel.iptalAciklama" />
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="tutar">
+                  Tutar <span class="text-danger">*</span>
+                </label>
+                <input type="text" class="form-control" id="tutar" name="tutar" required currencyMask
+                  [options]="{ prefix: 'TRY ' }" [(ngModel)]="cekimCreateModel.tutar" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-white" #manuelCekimEkleModalKapatButton data-dismiss="modal"
+            (click)="closeManuelCekimEkleModalKapat()">
+            Kapat
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isManuelCekimCreating">
+            <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isManuelCekimCreating"></i>Kaydet
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal inmodal fade" id="yatirimSilModal" role="dialog" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h3>Kaydı silmek istediğinize emin misiniz?</h3>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-white" data-dismiss="modal" #yatirimSilModalKapatButton
+          (click)="cancelDelete()">
+          Kapat
+        </button>
+        <button type="submit" class="btn btn-danger" [disabled]="isDeleting" (click)="deleteRecord()">
+          <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isDeleting"></i>Sil
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal inmodal fade" id="dekontModal" #dekontModal role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <form (ngSubmit)="submitDekontKontrolDurumu(dekontKontrolDurumForm)" #dekontKontrolDurumForm="ngForm">
+
+        <div class="modal-body">
+          {{getDekontDto.info}}
+
+          <hr />
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="baslik">
+                  Dekont Kontrol Durumu
+                </label>
+                <select id="durum" name="durum" class="form-control" [(ngModel)]="getDekontDto.dekontKontrolDurumu">
+                  <option [value]="0">Bekliyor</option>
+                  <option [value]="1">Dekont Doğru</option>
+                  <option [value]="2">Dekont Hatalı</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-12" *ngIf="getDekontDto.dekontKontrolKullanici != ''">
+              Dekont <strong>{{getDekontDto.dekontKontrolTarihi}}</strong> tarihinde <strong>{{getDekontDto.dekontKontrolKullanici}}</strong> tarafından kontrol edilmiştir.
+            </div>
+
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-white" data-dismiss="modal" #dekontModalKapatButton (click)="cancelDelete()">Kapat</button>
+          <button type="submit" class="btn btn-primary" [disabled]="isDekontDurumSubmit">
+            <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isDekontDurumSubmit"></i>Kaydet
+          </button>
+        </div>
+
+      </form>
+
+
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isLoading" class="loading-overlay">
+  <div class="spinner-border text-primary" role="status">
+    <span class="sr-only">Yükleniyor...</span>
+  </div>
+</div>

@@ -1,0 +1,92 @@
+﻿@using NorthHavaleTransactions.Models.ViewModels
+@model BankListViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>@Model.WebsiteTitle Havale</title>
+
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="content-language" content="tr">
+    <meta name="resource-type" content="document">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-50 to-green-50">
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 max-w-4xl">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+                <div class="flex items-center">
+                    <div class="relative h-16 w-16 mr-4 group perspective-[1000px]">
+                        <div class="absolute top-0 left-0 h-full w-full bg-green-100 rounded-tr-3xl rounded-bl-3xl transition-transform duration-[1500ms] group-hover:rotate-y-180 backface-hidden">
+                            <div class="absolute top-0 left-0 h-full w-full flex items-center justify-center font-bold text-green-700 text-lg transform -rotate-45">
+                                NORTH
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div class="border-l-4 border-green-500 pl-3">
+                        <h1 class="text-lg font-semibold">Banka Seçimi</h1>
+                        <h2 class="text-xl font-bold text-green-700">NORTH HAVALE</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="p-6 border-b border-gray-100">
+                <h2 class="text-2xl font-bold text-green-700 text-center mb-2">Banka Seçiniz</h2>
+                <p class="text-center text-green-600">Lütfen para yatırmak istediğiniz bankayı seçin</p>
+            </div>
+
+            @if (Model.IsError)
+            {
+                <div id="errorBlock" class="flex justify-center">
+                    <div id="errorMessage" class="bg-red-100 border border-red-400 text-red-700 text-center text-sm font-bold py-2 px-4 rounded w-full max-w-md">
+                        @Model.ErrorMessage
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="max-w-6xl mx-auto px-4 py-8">
+
+                    <!-- Banks Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4" id="banksGrid">
+                        @foreach (var item in Model.Bankalar)
+                        {
+                            <a href="@Url.Action("Index", "Home", new { transaction = Model.TransactionId, banka = item.Id }).Replace("/Home/Index", "/")"
+                                 class="bank-card bg-white border-2 rounded-lg p-6 text-center cursor-pointer transition-all duration-200 hover:border-green-600 hover:shadow-md border-green-200">
+                                <div class="w-12 h-12 bg-primary rounded-lg mx-auto mb-3 flex items-center justify-center">
+                                    <i class="fas fa-university text-green-700"></i>
+                                </div>
+                                <h3 class="font-semibold text-green-800 mb-1">@item.Baslik</h3>
+                                <p class="text-green-500 text-xs">Güvenli havale</p>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+
+        </div>
+    </main>
+
+</body>
+
+</html>

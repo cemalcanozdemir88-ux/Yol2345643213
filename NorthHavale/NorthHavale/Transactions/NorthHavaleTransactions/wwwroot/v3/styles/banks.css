@@ -1,0 +1,134 @@
+/* Bank Selection Page Styles */
+:root {
+    --primary-color: #f97316;
+    --primary-hover: #ea580c;
+    --bg-light: #fff7ed;
+    --text-primary: #c2410c;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fff7ed, #ffedd5);
+}
+
+.bank-card {
+    max-width: 900px;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+/* Logo Styles */
+.logo-container {
+    background: var(--primary-color);
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.logo-icon {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.375rem;
+    border-radius: 50%;
+    color: #ffffff;
+    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .logo-icon svg {
+        width: 24px;
+        height: 24px;
+        stroke: #ffffff;
+        fill: none;
+    }
+
+.logo-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+/* Welcome Section */
+.welcome-section {
+    background-color: var(--bg-light);
+    padding: 1rem;
+    border-bottom: 1px solid rgba(249, 115, 22, 0.1);
+}
+
+.customer-name {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Bank Selection Title */
+h2 {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+h3 {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* Bank Buttons */
+.bank-button {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #fed7aa;
+    border-radius: 0.75rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    height: 100%;
+}
+
+.bank-button:hover {
+    background: var(--bg-light);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.2);
+}
+
+.bank-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    background: var(--bg-light);
+    border-radius: 0.5rem;
+    margin-right: 1rem;
+    color: var(--primary-color);
+}
+
+.bank-button span {
+    font-weight: 500;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .bank-card {
+        margin: 1rem;
+    }
+    
+    .bank-button {
+        padding: 0.75rem;
+    }
+    
+    .bank-icon {
+        min-width: 32px;
+        height: 32px;
+        margin-right: 0.75rem;
+    }
+}
