@@ -10,6 +10,7 @@ namespace TikkoPayYonetici.Services.Interfaces
         Task<ResponseViewModel<YatirimTalepleriListDto>> Create(YatirimTalepleriCreateDto item);
         Task<ResponseViewModel<YatirimTalepleriListDto>> Update(YatirimTalepleriUpdateDto item);
         Task<ResponseViewModel<YatirimTalepleriListDto>> BekleyeneAl(Guid id);
+        Task<ResponseViewModel<YatirimTalepleriListDto>> YenidenYonlendir(YenidenYonlendirRequest request);
         Task<ResponseViewModel<YatirimTalepleriListDto>> UpdatePriceAndYatirimYapanAdSoyad(Guid id, decimal price, string yatirimYapanAdSoyad);
         Task<ResponseViewModel<YatirimTalepleriListDto>> ApproveAsync(Guid id);
         Task<ResponseViewModel<YatirimTalepleriListDto>> CancelAsync(Guid id, string iptalAciklama);

@@ -224,7 +224,24 @@ namespace Transactions.Controllers
             }
             else if (havaleBankalariItem.TedarikciId.Equals(settings.ViPayTedarikciId))
             {
-                havaleBankalariItem = await GetViPayBankAccount(depositTransaction, settings, amount);
+                try
+                {
+                    havaleBankalariItem = await GetViPayBankAccount(depositTransaction, settings, amount);
+                }
+                catch (Exception ex) when (ex.Message.Contains("no_bank_account_available") || ex.Message.Contains("deposit_already_finalized"))
+                {
+                    // ViPay bu ref ile açılan işlemi reddedip kapattı; aynı ref tekrar kullanılamaz.
+                    // Deposit tamamlandı olarak işaretlenir ki 20 dk içindeki yeni istek yeni ref ile açılsın.
+                    try
+                    {
+                        await _depositRepository.UpdateIsCompletedAsync(depositTransaction.Id, true);
+                    }
+                    catch
+                    {
+                    }
+
+                    throw;
+                }
             }
             else if (havaleBankalariItem.TedarikciId.Equals(settings.PullPayTedarikciId))
             {
@@ -423,6 +440,12 @@ namespace Transactions.Controllers
             item.KayitTarihi = DateTime.Now;
 
             await _yatirimCekimTalepleriRepository.InsertAsync(item);
+
+            // ViPay reddinden sonra başka tedarikçiden hesap verildiyse deposit tekrar bekleyen duruma alınır.
+            if (depositTransactionItem.IsCompleted)
+            {
+                await _depositRepository.UpdateIsCompletedAsync(depositTransactionItem.Id, false);
+            }
 
             return webSiteItem.WebSiteUrl;
         }

@@ -1,0 +1,32 @@
+.kasa-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.btn-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #1ab394;
+  background-color: #fff;
+  border: 1px solid #1ab394;
+  border-radius: 3px;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-copy:hover,
+.btn-copy:focus {
+  color: #fff;
+  background-color: #1ab394;
+  border-color: #1ab394;
+  box-shadow: none;
+}
+
+.btn-copy.copied {
+  color: #fff;
+  background-color: #1c84c6;
+  border-color: #1c84c6;
+}

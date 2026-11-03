@@ -33,6 +33,12 @@ namespace TikkoPayYonetici.Infrastructure.Configurations
             builder.Property(k => k.DekontKontrolKullaniciId).IsRequired(false);
             builder.Property(k => k.DekontKontrolTarihi).IsRequired(false);
 
+            // DB'de zaten var olan unique index; EF'in kayıt sırasını doğru belirlemesi için modelde tanımlı
+            builder.HasIndex(k => k.WebSiteTransactionIdBigIntValue)
+                .IsUnique()
+                .HasDatabaseName("UQ_WebSiteTransactionIdBigIntValue_Filtered")
+                .HasFilter("([IslemTipi]=(1) AND [YontemTipi]<>'Manuel')");
+
             builder.HasOne(k => k.Tedarikciler)
                 .WithMany(t => t.YatirimTalepleri)
                 .HasForeignKey(k => k.TedarikciId);

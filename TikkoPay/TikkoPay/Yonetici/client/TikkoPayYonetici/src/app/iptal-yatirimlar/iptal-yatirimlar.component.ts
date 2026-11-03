@@ -29,6 +29,10 @@ export class IptalYatirimlarComponent {
   Authorization = Authorization;
 
   @ViewChild('bekleyeneAlModalKapatButton') bekleyeneAlModalKapatButton!: ElementRef;
+  @ViewChild('yenidenYonlendirModalKapatButton') yenidenYonlendirModalKapatButton!: ElementRef;
+
+  selectedYonlendirItem: YatirimTalepleriListDto | null = null;
+  yonlendirModel: { tedarikciId: string, tutar: number | null } = { tedarikciId: '', tutar: null };
 
   public isLoading: boolean = false;
 
@@ -222,6 +226,55 @@ export class IptalYatirimlarComponent {
       }
     });
 
+  }
+
+  startYenidenYonlendir(item: YatirimTalepleriListDto) {
+    this.selectedYonlendirItem = item;
+    this.yonlendirModel = { tedarikciId: item.tedarikciId ?? '', tutar: item.tutar };
+  }
+
+  closeYenidenYonlendirModal() {
+    this.selectedYonlendirItem = null;
+    this.yonlendirModel = { tedarikciId: '', tutar: null };
+    this.yenidenYonlendirModalKapatButton.nativeElement.click();
+  }
+
+  submitYenidenYonlendirForm() {
+    if (!this.selectedYonlendirItem) {
+      this.alertify.error("Yatırım seçiniz!");
+      return;
+    }
+    if (!this.yonlendirModel.tedarikciId) {
+      this.alertify.error("Tedarikçi seçiniz!");
+      return;
+    }
+    if (!this.yonlendirModel.tutar || this.yonlendirModel.tutar <= 0) {
+      this.alertify.error("Geçerli bir tutar giriniz!");
+      return;
+    }
+
+    this.isLoading = true;
+
+    this.yatirimTalepleriService.yenidenYonlendir(this.selectedYonlendirItem.id, this.yonlendirModel.tedarikciId, this.yonlendirModel.tutar).subscribe({
+      next: response => {
+        if (response.success) {
+          this.closeYenidenYonlendirModal();
+          this.getAll(this.activePage);
+          this.alertify.success(response.message);
+        }
+        else {
+          this.alertify.error(response.message);
+        }
+        this.isLoading = false;
+      },
+      error: error => {
+        this.alertify.error(error?.error?.message ?? "Hata oluştu");
+        this.isLoading = false;
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
   }
 
   isAdmin(): boolean {

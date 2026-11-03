@@ -34,6 +34,9 @@ export class KasaHaraketleriComponent implements OnInit {
   tedarikcilerDronDownModel: TedarikcilerListDto[] = [];
 
   kasaHaraketleriList: KasaHaraketleriListDto[] = [];
+
+  copiedItemId: string | null = null;
+  private copiedTimeout: any;
   kasaHaraketleriCreateModel!: KasaHaraketleriCreateDto;
 
   kasaHaraketleriVirmanCreateModel!: KasaHaraketleriVirmanCreateDto;
@@ -325,6 +328,70 @@ export class KasaHaraketleriComponent implements OnInit {
 
   private isCreate(): boolean {
     return this.kasaHaraketleriCreateModel.id == "00000000-0000-0000-0000-000000000000";
+  }
+
+  copyKasaHaraketiInfo(item: KasaHaraketleriListDto) {
+    const formatNumber = (value: number) =>
+      (value ?? 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    const lines: string[] = [
+      `${item.tedarikciAdi ?? ''}`,
+      `${formatNumber(item.tutar)} TL/ USDT KASA TESLİMATI`,
+      `USDT KUR : ${formatNumber(item.dovizKuru)} TL`,
+      `USDT MİKTAR : ${formatNumber(item.usdtMiktar)} USDT`,
+      `Gönderilen adres: ${item.usdtAdres ?? ''}`
+    ];
+
+    // Komisyon, ana kayda TopId ile bağlı otomatik oluşturulan satırdır
+    const komisyonItem = this.kasaHaraketleriList.find(k => k.topId === item.id);
+    if (komisyonItem) {
+      lines.push(`Teslimat Komisyonu: ${formatNumber(komisyonItem.tutar)} TL`);
+    }
+
+    const txtNo = (item.usdtTxtNo ?? '').trim();
+    if (txtNo) {
+      lines.push(txtNo.startsWith('http') ? txtNo : `https://tronscan.org/#/transaction/${txtNo}`);
+    }
+
+    this.copyToClipboard(lines.join('\n\n'), item.id);
+  }
+
+  private copyToClipboard(text: string, itemId: string) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text)
+        .then(() => this.onCopied(itemId))
+        .catch(() => this.copyToClipboardFallback(text, itemId));
+    }
+    else {
+      this.copyToClipboardFallback(text, itemId);
+    }
+  }
+
+  // http (güvenli olmayan) ortamlar için yedek yöntem
+  private copyToClipboardFallback(text: string, itemId: string) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.opacity = '0';
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      this.onCopied(itemId);
+    }
+    catch {
+      this.alertify.error("Kopyalama başarısız");
+    }
+    document.body.removeChild(textArea);
+  }
+
+  // Butonu kısa süreliğine "Kopyalandı" durumuna alır
+  private onCopied(itemId: string) {
+    this.copiedItemId = itemId;
+    this.alertify.success("Bilgiler kopyalandı");
+
+    clearTimeout(this.copiedTimeout);
+    this.copiedTimeout = setTimeout(() => this.copiedItemId = null, 1500);
   }
 
   getDurumText(durum: number) {

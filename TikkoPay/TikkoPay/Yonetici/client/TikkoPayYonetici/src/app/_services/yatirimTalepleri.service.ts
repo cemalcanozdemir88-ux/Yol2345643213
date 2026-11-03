@@ -142,6 +142,11 @@ export class YatirimTalepleriService {
         return this.httpClient.put<ResponseViewModel<YatirimTalepleriListDto>>(url, null);
     }
 
+    yenidenYonlendir(id: string, tedarikciId: string, tutar: number) {
+        const url: string = `${this.baseApiUrl}/YatirimTalepleri/yeniden-yonlendir`;
+        return this.httpClient.post<ResponseViewModel<YatirimTalepleriListDto>>(url, { id, tedarikciId, tutar });
+    }
+
     updatePrice(id: string, price: number, yatirimYapanAdSoyad: string) {
         const url: string = `${this.baseApiUrl}/YatirimTalepleri/update-price-and-yatirim-adsoyad?id=${id}&price=${price}&yatirimYapanAdSoyad=${yatirimYapanAdSoyad}`;
         return this.httpClient.put<ResponseViewModel<YatirimTalepleriListDto>>(url, null);

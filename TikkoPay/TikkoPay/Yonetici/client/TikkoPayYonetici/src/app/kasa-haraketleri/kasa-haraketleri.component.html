@@ -310,16 +310,25 @@
                     {{ item.guncellemeTarihi | date : "dd/MM/yyyy HH:mm:ss" }}
                   </td>
                   <td class="text-right footable-visible footable-last-column">
-                    <div>
-                      
+                    <div class="kasa-actions">
                       <span *ngIf="!item.topId">
                         <button
                           *appHasAuthorization="Authorization.TedarikciKasaHaraketleriDuzenleyebilir"
-                          class="btn-primary btn btn-xs mr-2"
+                          class="btn-primary btn btn-xs"
                           (click)="startEdit(item.id)">
                           Düzenle
                         </button>
                       </span>
+
+                      <button
+                        type="button"
+                        class="btn btn-xs btn-copy"
+                        [class.copied]="copiedItemId === item.id"
+                        [title]="copiedItemId === item.id ? 'Kopyalandı' : 'Bilgileri kopyala'"
+                        (click)="copyKasaHaraketiInfo(item)">
+                        <i class="fa" [ngClass]="copiedItemId === item.id ? 'fa-check' : 'fa-clone'" aria-hidden="true"></i>
+                        {{ copiedItemId === item.id ? 'Kopyalandı' : 'Kopyala' }}
+                      </button>
 
                       <!-- <button
                         class="btn-danger btn btn-xs"

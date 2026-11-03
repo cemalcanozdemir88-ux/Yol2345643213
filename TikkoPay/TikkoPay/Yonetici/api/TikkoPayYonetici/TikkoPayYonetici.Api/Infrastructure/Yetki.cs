@@ -28,6 +28,7 @@
         public const string IptalEdilenYatirimlarGorebilir = "d1bd1313-92f9-4ad1-be03-765cacc27e98";
         public const string IptalEdilenYatirimlarExcelIndirebilir = "1f7f63cc-2371-46ff-9a63-9d8508013c81";
         public const string IptalEdilenYatirimlariBekleyeneAlabilir = "b5981cab-1c99-4765-9401-b9e0fac9a8a1";
+        public const string IptalEdilenYatirimlariYenidenGonderebilir = "54809866-1624-41ef-ba78-981d4bc1fb09";
 
         public const string TumYatirimlarGorebilir = "9e3b1ff3-23d0-4374-886f-4a7474a6edc3";
 

@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using TikkoPayYonetici.Core;
 
 namespace TikkoPayYonetici.Services.Concretes
@@ -26,6 +27,8 @@ namespace TikkoPayYonetici.Services.Concretes
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWebSitePaymentMethodsRepository _webSitePaymentMethodsRepository;
+        private readonly ISettingsV2Repository _settingsV2Repository;
+        private readonly TransactionsApiSettings _transactionsApiSettings;
 
         public YatirimTalepleriService(IMapper mapper,
             IUnitOfWork unitOfWork,
@@ -36,8 +39,12 @@ namespace TikkoPayYonetici.Services.Concretes
             IHavaleBankalariRepository havaleBankalariRepository,
             HttpClient httpClient,
             IHttpContextAccessor httpContextAccessor,
-            IWebSitePaymentMethodsRepository webSitePaymentMethodsRepository)
+            IWebSitePaymentMethodsRepository webSitePaymentMethodsRepository,
+            ISettingsV2Repository settingsV2Repository,
+            IOptions<TransactionsApiSettings> transactionsApiSettingsOptions)
         {
+            _settingsV2Repository = settingsV2Repository;
+            _transactionsApiSettings = transactionsApiSettingsOptions.Value;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _yatirimTalepleriRepository = yatirimTalepleriRepository;
@@ -200,6 +207,163 @@ namespace TikkoPayYonetici.Services.Concretes
             {
                 Message = "Yatırım talebi bekleyene alındı",
                 Success = true
+            };
+        }
+
+        /// <summary>
+        /// İptal edilen yatırımı yeni tutar / tedarikçi ile yeni bir kayıt olarak tedarikçiye gönderir.
+        /// Mevcut (iptal) kayıt olduğu gibi kalır; yeni kayıt TopId ile eski kayda bağlanır.
+        /// WebSiteTransactionId aynı kalır (web sitesinden gelen transaction).
+        /// </summary>
+        public async Task<ResponseViewModel<YatirimTalepleriListDto>> YenidenYonlendir(YenidenYonlendirRequest request)
+        {
+            if (request.Tutar <= 0)
+            {
+                return new ResponseViewModel<YatirimTalepleriListDto>
+                {
+                    Success = false,
+                    Message = "Tutar sıfırdan büyük olmalıdır."
+                };
+            }
+
+            var dbItem = await _yatirimTalepleriRepository.GetByIdAsync(request.Id);
+            if (dbItem == null || dbItem.SilindiMi)
+            {
+                return new ResponseViewModel<YatirimTalepleriListDto>
+                {
+                    Success = false,
+                    Message = "Kayıt bulunamadı."
+                };
+            }
+
+            if (dbItem.Durum != Durum.Red || dbItem.IslemTipi != IslemTip.Deposit)
+            {
+                return new ResponseViewModel<YatirimTalepleriListDto>
+                {
+                    Success = false,
+                    Message = "Sadece iptal edilen yatırımlar yeniden gönderilebilir."
+                };
+            }
+
+            var tedarikciItem = await _tedarikciRepository.GetByIdAsync(request.TedarikciId);
+            if (tedarikciItem == null)
+            {
+                return new ResponseViewModel<YatirimTalepleriListDto>
+                {
+                    Success = false,
+                    Message = "Tedarikçi bulunamadı."
+                };
+            }
+
+            // Aynı transaction için bekleyen ya da onaylanmış bir kayıt varsa tekrar açılmasın (çift onay riskini engeller)
+            var aktifKayitVar = _yatirimTalepleriRepository.Find(k => k.WebSiteTransactionId == dbItem.WebSiteTransactionId &&
+                                                                      k.IslemTipi == IslemTip.Deposit &&
+                                                                      (k.Durum == Durum.Bekliyor || k.Durum == Durum.Onaylandi) &&
+                                                                      !k.SilindiMi).Any();
+            if (aktifKayitVar)
+            {
+                return new ResponseViewModel<YatirimTalepleriListDto>
+                {
+                    Success = false,
+                    Message = "Bu transaction için zaten bekleyen veya onaylanmış bir kayıt var."
+                };
+            }
+
+            // API'li tedarikçi (FixHavale, ViPay vb.) seçildiyse önce onların sistemine istek atılır.
+            // Tedarikçi kabul etmezse hiçbir kayıt açılmaz.
+            var settings = await _settingsV2Repository.GetSettingsAsync();
+            var apiliTedarikci = IsApiliTedarikci(settings, request.TedarikciId);
+            TedarikciHesapResponse? tedarikciHesabi = null;
+
+            if (apiliTedarikci)
+            {
+                if (dbItem.TedarikciId == request.TedarikciId)
+                {
+                    return new ResponseViewModel<YatirimTalepleriListDto>
+                    {
+                        Success = false,
+                        Message = "Bu işlem zaten bu tedarikçide reddedildi. API ile çalışan tedarikçiye aynı işlem tekrar gönderilemez."
+                    };
+                }
+
+                tedarikciHesabi = await SendDepositToApiliTedarikciAsync(dbItem.WebSiteTransactionId, request.TedarikciId, request.Tutar);
+                if (!tedarikciHesabi.Success)
+                {
+                    return new ResponseViewModel<YatirimTalepleriListDto>
+                    {
+                        Success = false,
+                        Message = tedarikciHesabi.Message
+                    };
+                }
+            }
+
+            var nameidentifier = _httpContextAccessor.HttpContext?.User.FindFirst(x => x.Type == "nameidentifier")?.Value;
+            Guid? kullaniciId = nameidentifier != null ? Guid.Parse(nameidentifier) : null;
+
+            var yeniKayit = dbItem.DeepClone();
+
+            yeniKayit.Id = Guid.NewGuid();
+            yeniKayit.TopId = dbItem.Id; // eski (iptal) kayda bağlantı - history
+            yeniKayit.TedarikciId = request.TedarikciId;
+            yeniKayit.AdSoyadYatirimYapan = dbItem.AdSoyadYatirimYapan;
+            yeniKayit.Tutar = request.Tutar;
+            yeniKayit.TedarikciKomisyon = await GetTedarikciYatirimKomisyon(request.TedarikciId, request.Tutar);
+            yeniKayit.WebSiteKomisyon = yeniKayit.WebSiteId.HasValue
+                ? await GetWebSiteYatirimKomisyon(yeniKayit.WebSiteId.Value, request.Tutar)
+                : 0;
+            yeniKayit.Toplam = yeniKayit.Tutar - yeniKayit.TedarikciKomisyon;
+
+            yeniKayit.Durum = Durum.Bekliyor;
+            yeniKayit.IptalAciklama = string.Empty;
+            yeniKayit.OnayTarihi = null;
+            yeniKayit.IsSendToWebSite = false;
+            yeniKayit.WebSiteCallBackResult = string.Empty;
+            yeniKayit.SilindiMi = false;
+
+            yeniKayit.KayitTarihi = DateTime.Now;
+            yeniKayit.KaydedenKullaniciId = kullaniciId;
+            yeniKayit.GuncellemeTarihi = null;
+            yeniKayit.GuncelleyenKullaniciId = null;
+            yeniKayit.YonlendirenKullaniciId = kullaniciId;
+            yeniKayit.YonlendirilmeTarihi = DateTime.Now;
+
+            // API'li tedarikçide hesap bilgisi tedarikçinin verdiği hesaptır (normal yatırım akışındaki gibi)
+            if (tedarikciHesabi != null)
+            {
+                yeniKayit.HavaleBankaId = tedarikciHesabi.HavaleBankaId;
+                if (tedarikciHesabi.BankaId.HasValue)
+                {
+                    yeniKayit.BankaId = tedarikciHesabi.BankaId;
+                }
+                yeniKayit.HesapNo = tedarikciHesabi.HesapNo;
+                yeniKayit.HesapSahibi = tedarikciHesabi.HesapSahibi;
+                yeniKayit.YontemTipi = tedarikciHesabi.YontemTipi;
+            }
+
+            // DB'de unique index var: UQ_WebSiteTransactionIdBigIntValue_Filtered ([IslemTipi]=1 AND [YontemTipi]<>'Manuel'), NULL dahil.
+            // Callback'ler (TikkoPayCallbacks) bu kolonla eşleşen TÜM kayıtların tutar/komisyonunu günceller;
+            // bu yüzden değer sadece aktif (yeni) kayıtta kalmalı.
+            // Eski kayda -IdNumber yazılır: her kayıt için benzersizdir ve gerçek (pozitif) transaction id ile çakışmaz.
+            // Eski kayıtta WebSiteTransactionId (string) aynen kalır, history bozulmaz.
+            dbItem.WebSiteTransactionIdBigIntValue = -dbItem.IdNumber;
+
+            await _yatirimTalepleriRepository.AddAsync(yeniKayit);
+            var result = await _unitOfWork.SaveAsync();
+
+            if (result > 0)
+            {
+                return new ResponseViewModel<YatirimTalepleriListDto>
+                {
+                    Success = true,
+                    Message = $"Yeni kayıt oluşturuldu ve {tedarikciItem.Unvan} tedarikçisinin onayına gönderildi.",
+                    Result = new YatirimTalepleriListDto { Id = yeniKayit.Id }
+                };
+            }
+
+            return new ResponseViewModel<YatirimTalepleriListDto>
+            {
+                Success = false,
+                Message = "Hata oluştu, bir süre sonra tekrar deneyiniz."
             };
         }
 
@@ -526,6 +690,61 @@ namespace TikkoPayYonetici.Services.Concretes
             var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(hashInput));
 
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+        }
+
+        private static bool IsApiliTedarikci(Settings settings, Guid tedarikciId)
+        {
+            var apiliTedarikciler = new[]
+            {
+                settings.FluxFinansTedarikciId,
+                settings.ViPayTedarikciId,
+                settings.PullPayTedarikciId,
+                settings.ParoPayTedarikciId,
+                settings.ZenEntegreTedarikciId,
+                settings.TumBankTedarikciId,
+                settings.FixHavaleTedarikciId,
+            };
+
+            return tedarikciId != Guid.Empty && apiliTedarikciler.Contains(tedarikciId);
+        }
+
+        // Transactions projesindeki dahili endpoint üzerinden API'li tedarikçiye yatırım isteği atar
+        private async Task<TedarikciHesapResponse> SendDepositToApiliTedarikciAsync(string webSiteTransactionId, Guid tedarikciId, decimal tutar)
+        {
+            var body = JsonSerializer.Serialize(new { webSiteTransactionId, tedarikciId, amount = tutar });
+
+            using var httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{_transactionsApiSettings.Url.TrimEnd('/')}/api/internal/deposit/send-to-supplier");
+            httpRequest.Headers.Add("X-Internal-Api-Key", _transactionsApiSettings.InternalApiKey);
+            httpRequest.Content = new StringContent(body, Encoding.UTF8, "application/json");
+
+            using var response = await _httpClient.SendAsync(httpRequest);
+            var content = await response.Content.ReadAsStringAsync();
+
+            TedarikciHesapResponse? result = null;
+            if (response.Content.Headers.ContentType?.MediaType == "application/json")
+            {
+                result = JsonSerializer.Deserialize<TedarikciHesapResponse>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+
+            if (result == null)
+            {
+                return new TedarikciHesapResponse
+                {
+                    Success = false,
+                    Message = $"Tedarikçiye istek gönderilemedi (HTTP {(int)response.StatusCode})."
+                };
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                result.Success = false;
+                if (string.IsNullOrWhiteSpace(result.Message))
+                {
+                    result.Message = $"Tedarikçiye istek gönderilemedi (HTTP {(int)response.StatusCode}).";
+                }
+            }
+
+            return result;
         }
 
         private async Task<decimal> GetTedarikciYatirimKomisyon(Guid tedarikciId, decimal tutar)

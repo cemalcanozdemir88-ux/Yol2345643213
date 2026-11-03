@@ -264,6 +264,18 @@
                     >
                       Bekleyene Al
                     </button>
+                    <ng-container *ngIf="isAdmin()">
+                      <button
+                        *appHasAuthorization="Authorization.IptalEdilenYatirimlariYenidenGonderebilir"
+                        class="btn-info btn btn-xs"
+                        style="margin-left: 5px;"
+                        data-toggle="modal"
+                        data-target="#yenidenYonlendirModal"
+                        (click)="startYenidenYonlendir(item)"
+                      >
+                        Düzenle / Yeniden Gönder
+                      </button>
+                    </ng-container>
                   </td>
                 </tr>
               </tbody>
@@ -345,4 +357,81 @@ aria-hidden="true"
     </form>
   </div>
 </div>
+</div>
+
+<div
+  class="modal inmodal fade"
+  id="yenidenYonlendirModal"
+  tabindex="-1"
+  role="dialog"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form (ngSubmit)="submitYenidenYonlendirForm()" #yenidenYonlendirForm="ngForm">
+        <div class="modal-header">
+          <h4 class="modal-title">Düzenle / Yeniden Gönder</h4>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-info">
+            Mevcut iptal kaydı olduğu gibi saklanır. Seçtiğiniz tedarikçi ve tutar ile
+            aynı Transaction Id'ye sahip <strong>yeni bir kayıt</strong> açılır ve
+            tedarikçinin onayına (bekleyen) gönderilir.
+          </div>
+          <div class="row" *ngIf="selectedYonlendirItem">
+            <div class="col-md-12 m-b-sm">
+              <strong>Talep No:</strong> {{ selectedYonlendirItem.talepNoWithFormated }} &nbsp;
+              <strong>Transaction Id:</strong> {{ selectedYonlendirItem.webSiteTransactionId }}<br />
+              <strong>Mevcut Tedarikçi:</strong> {{ selectedYonlendirItem.tedarikciAdi }} &nbsp;
+              <strong>Mevcut Tutar:</strong> {{ selectedYonlendirItem.tutar | currency : "TRY" : "symbol-narrow" : "1.2-2" }}
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="yonlendirTedarikciId">Tedarikçi</label>
+                <select
+                  id="yonlendirTedarikciId"
+                  name="yonlendirTedarikciId"
+                  [(ngModel)]="yonlendirModel.tedarikciId"
+                  required
+                  class="form-control">
+                  <option value="">Seçiniz</option>
+                  <option *ngFor="let item of tedarikcilerDronDownModel" [value]="item.id">
+                    {{ item.unvan }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="yonlendirTutar">Tutar</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  class="form-control"
+                  id="yonlendirTutar"
+                  name="yonlendirTutar"
+                  required
+                  [(ngModel)]="yonlendirModel.tutar" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-white"
+            #yenidenYonlendirModalKapatButton
+            data-dismiss="modal"
+            (click)="closeYenidenYonlendirModal()"
+          >
+            Kapat
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isLoading"></i>Kaydet
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>

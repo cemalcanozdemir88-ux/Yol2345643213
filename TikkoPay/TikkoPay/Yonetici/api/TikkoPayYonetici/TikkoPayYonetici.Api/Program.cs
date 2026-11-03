@@ -53,6 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.Configure<JwtTokenSettings>(builder.Configuration.GetSection("JwtTokenSettings"));
 builder.Services.Configure<TedarikciPanelSettings>(builder.Configuration.GetSection("TedarikciPanelSettings"));
+builder.Services.Configure<TransactionsApiSettings>(builder.Configuration.GetSection("TransactionsApiSettings"));
 
 builder.Services.AddScoped<LogActionFilter>();
 
@@ -126,7 +127,7 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddResponseCaching();
 
-builder.Services.AddHostedService<MutabakatBackgroundService>();
+//builder.Services.AddHostedService<MutabakatBackgroundService>();
 
 var app = builder.Build();
 

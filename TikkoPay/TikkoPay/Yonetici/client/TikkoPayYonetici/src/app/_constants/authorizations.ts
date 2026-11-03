@@ -26,6 +26,7 @@ export class Authorization {
     static IptalEdilenYatirimlarGorebilir: string = "d1bd1313-92f9-4ad1-be03-765cacc27e98";
     static IptalEdilenYatirimlarExcelIndirebilir: string = "1f7f63cc-2371-46ff-9a63-9d8508013c81";
     static IptalEdilenYatirimlariBekleyeneAlabilir: string = "b5981cab-1c99-4765-9401-b9e0fac9a8a1";
+    static IptalEdilenYatirimlariYenidenGonderebilir: string = "54809866-1624-41ef-ba78-981d4bc1fb09";
 
     static TumYatirimlarGorebilir: string = "9e3b1ff3-23d0-4374-886f-4a7474a6edc3";
 

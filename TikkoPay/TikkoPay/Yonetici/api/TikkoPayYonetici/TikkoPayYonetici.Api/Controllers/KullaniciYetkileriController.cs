@@ -97,6 +97,7 @@ namespace TikkoPayYonetici.Api.Controllers
 
                 //Guid.Parse("1F7F63CC-2371-46FF-9A63-9D8508013C81"), // İptal Edilen Yatırımlar Excel İndirebilir
                 Guid.Parse("B5981CAB-1C99-4765-9401-B9E0FAC9A8A1"), // İptal Edilen Yatırımları Bekleyene Alabilir
+                Guid.Parse("54809866-1624-41EF-BA78-981D4BC1FB09"), // İptal Edilen Yatırımları Yeniden Gönderebilir
 
                 Guid.Parse("9E3B1FF3-23D0-4374-886F-4A7474A6EDC3"), // Tum Yatırımlar Görebilir
             };

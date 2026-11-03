@@ -16,6 +16,7 @@ namespace TikkoPayYonetici.Core.Models
         public string WebSiteTransactionId { get; set; } = string.Empty;
         public long? WebSiteTransactionIdBigIntValue { get; set; }
         public Guid? WithdrawTransactionId { get; set; }
+        public Guid? DepositTransactionId { get; set; }
         public string AdSoyad { get; set; } = string.Empty;
         public string? AdSoyadYatirimYapan { get; set; }
         public string? UserName { get; set; } = string.Empty;
@@ -64,6 +65,7 @@ namespace TikkoPayYonetici.Core.Models
                 WebSiteTransactionId = this.WebSiteTransactionId,
                 WebSiteTransactionIdBigIntValue = this.WebSiteTransactionIdBigIntValue,
                 WithdrawTransactionId = this.WithdrawTransactionId,
+                DepositTransactionId = this.DepositTransactionId,
                 AdSoyad = this.AdSoyad,
                 UserName = this.UserName,
                 UserId = this.UserId,

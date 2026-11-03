@@ -95,6 +95,26 @@ namespace TikkoPayYonetici.Api.Controllers
             }
         }
 
+        [PermissionAuthorize(Yetki.IptalEdilenYatirimlariYenidenGonderebilir)]
+        [HttpPost("yeniden-yonlendir")]
+        public async Task<IActionResult> YenidenYonlendir(YenidenYonlendirRequest request)
+        {
+            if (!IsSuperAdmin())
+            {
+                throw new Exception("Yetki yok!");
+            }
+
+            var result = await _yatirimTalepleriService.YenidenYonlendir(request);
+            if (result.Success)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest(result);
+            }
+        }
+
         [PermissionAuthorize(Yetki.BekleyenYatirimlarDuzenleyebilir)]
         [HttpPut("update-price-and-yatirim-adsoyad")]
         public async Task<IActionResult> UpdatePriceAndYatirimYapanAdSoyad(Guid id, decimal price, string yatirimYapanAdSoyad)
