@@ -345,6 +345,26 @@ namespace TikkoPayYonetici.Services.Concretes
             // bu yüzden değer sadece aktif (yeni) kayıtta kalmalı.
             // Eski kayda -IdNumber yazılır: her kayıt için benzersizdir ve gerçek (pozitif) transaction id ile çakışmaz.
             // Eski kayıtta WebSiteTransactionId (string) aynen kalır, history bozulmaz.
+            //
+            // Not: dbItem daha önce de yeniden gönderilmişse üzerinde zaten negatif değer vardır ve DeepClone bunu
+            // yeni kayda da kopyalar (duplicate key hatası). Bu yüzden yeni kayda her zaman gerçek değer verilir.
+            long? gercekTransactionDegeri = dbItem.WebSiteTransactionIdBigIntValue > 0
+                ? dbItem.WebSiteTransactionIdBigIntValue
+                : (long.TryParse(dbItem.WebSiteTransactionId, out var parsedTransactionId) ? parsedTransactionId : null);
+
+            if (gercekTransactionDegeri.HasValue)
+            {
+                // Gerçek değeri hâlâ taşıyan eski (iptal) kayıtlar varsa onları da kendi -IdNumber değerlerine çek
+                var degeriTasiyanEskiKayitlar = _yatirimTalepleriRepository
+                    .Find(k => k.WebSiteTransactionIdBigIntValue == gercekTransactionDegeri && k.Id != dbItem.Id)
+                    .ToList();
+                foreach (var eskiKayit in degeriTasiyanEskiKayitlar)
+                {
+                    eskiKayit.WebSiteTransactionIdBigIntValue = -eskiKayit.IdNumber;
+                }
+            }
+
+            yeniKayit.WebSiteTransactionIdBigIntValue = gercekTransactionDegeri;
             dbItem.WebSiteTransactionIdBigIntValue = -dbItem.IdNumber;
 
             await _yatirimTalepleriRepository.AddAsync(yeniKayit);
@@ -698,6 +718,7 @@ namespace TikkoPayYonetici.Services.Concretes
             {
                 settings.FluxFinansTedarikciId,
                 settings.ViPayTedarikciId,
+                settings.ViPayTedarikciId2,
                 settings.PullPayTedarikciId,
                 settings.ParoPayTedarikciId,
                 settings.ZenEntegreTedarikciId,

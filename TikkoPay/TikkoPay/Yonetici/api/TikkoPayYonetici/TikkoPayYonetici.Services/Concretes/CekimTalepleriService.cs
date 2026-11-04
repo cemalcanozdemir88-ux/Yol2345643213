@@ -442,7 +442,7 @@ namespace TikkoPayYonetici.Services.Concretes
                         };
                     }
                 }
-                else if (tedarikciId.Equals(settings.ViPayTedarikciId))
+                else if (tedarikciId == settings.ViPayTedarikciId || tedarikciId == settings.ViPayTedarikciId2)
                 {
                     var serviceResponse = await _viPayService.SendWithdrawAsync(dbItem);
                     if (!serviceResponse.IsSuccess)
@@ -554,7 +554,7 @@ namespace TikkoPayYonetici.Services.Concretes
                             };
                         }
                     }
-                    else if (tedarikciWithAmountItem.TedarikciId.Equals(settings.ViPayTedarikciId))
+                    else if (tedarikciWithAmountItem.TedarikciId == settings.ViPayTedarikciId || tedarikciWithAmountItem.TedarikciId == settings.ViPayTedarikciId2)
                     {
                         var serviceResponse = await _viPayService.SendWithdrawAsync(newItem);
                         if (!serviceResponse.IsSuccess)

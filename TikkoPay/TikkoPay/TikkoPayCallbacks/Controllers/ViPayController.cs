@@ -45,7 +45,8 @@ namespace TikkoPayCallbacks.Controllers
                 });
             }
 
-            var yatirimCekimTalepleriItem = await _yatirimCekimTalepleriRepository.GetByWebSiteTransactionId(settings.ViPayTedarikciId, request.Ref);
+            var yatirimCekimTalepleriItem = await _yatirimCekimTalepleriRepository.GetByWebSiteTransactionId(settings.ViPayTedarikciId, request.Ref)
+                                            ?? await _yatirimCekimTalepleriRepository.GetByWebSiteTransactionId(settings.ViPayTedarikciId2, request.Ref);
             if (yatirimCekimTalepleriItem is null)
             {
                 return BuildResponse(new ProcessResultModel

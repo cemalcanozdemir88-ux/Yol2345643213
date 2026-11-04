@@ -109,10 +109,11 @@ namespace Transactions.Controllers
                 var a = r?.Data?.Account;
                 return Build(settings.FluxFinansDefaultFastHavaleBankId, a?.Iban, a?.AccountHolderName, a?.BankName, r?.Message);
             }
-            if (tedarikciId.Equals(settings.ViPayTedarikciId))
+            if (tedarikciId == settings.ViPayTedarikciId || tedarikciId == settings.ViPayTedarikciId2)
             {
                 var r = await _viPayService.GetBankAccountAsync(depositTransaction, amount);
-                return Build(settings.ViPayDefaultFastHavaleBankId, r?.data?.iban, r?.data?.account_holder, r?.data?.bank, r?.message);
+                var viPayBankId = tedarikciId == settings.ViPayTedarikciId2 ? settings.ViPayDefaultFastHavaleBankId2 : settings.ViPayDefaultFastHavaleBankId;
+                return Build(viPayBankId, r?.data?.iban, r?.data?.account_holder, r?.data?.bank, r?.message);
             }
             if (tedarikciId.Equals(settings.PullPayTedarikciId))
             {

@@ -15,6 +15,7 @@
         public string FluxFinansSecretKey { get; set; } = string.Empty;
 
         public Guid ViPayTedarikciId { get; set; }
+        public Guid ViPayTedarikciId2 { get; set; }
         public Guid ViPayDefaultFastHavaleBankId { get; set; }
         public string ViPayDepositUrl { get; set; } = string.Empty;
         public string ViPayWithdrawUrl { get; set; } = string.Empty;

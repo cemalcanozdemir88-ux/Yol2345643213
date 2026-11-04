@@ -37,7 +37,7 @@ namespace TikkoPayCallbacks.Infrastructure.Services.Concretes
 
         public async Task<ProcessResultModel> ProcessWithdraw(ViPayCallbackRequest request, YatirimCekimTalepleri cekimTalebi, Settings settings)
         {
-            if (cekimTalebi.TedarikciId != settings.ViPayTedarikciId)
+            if (cekimTalebi.TedarikciId != settings.ViPayTedarikciId && cekimTalebi.TedarikciId != settings.ViPayTedarikciId2)
             {
                 return new ProcessResultModel
                 {

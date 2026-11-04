@@ -57,11 +57,23 @@ namespace Transactions.Infrastructure.Services.Concretes
             
             if (result is IFixApiResponse apiResponse)
                 apiResponse.IsSuccessStatusCode = responseResult.IsSuccessStatusCode;
-            
+
+            // FixHavale hesap ve mesaj döndürmediğinde gerçek sebep görünsün diye HTTP kodu ve ham cevap mesaja eklenir
+            if (result is FixApiDepositResponseDto dto &&
+                string.IsNullOrWhiteSpace(dto.BankAccount?.Iban) &&
+                string.IsNullOrWhiteSpace(dto.Message))
+            {
+                var raw = string.IsNullOrWhiteSpace(responseResult.RawBody) ? "(boş cevap)" : responseResult.RawBody;
+                if (raw.Length > 500)
+                    raw = raw[..500];
+
+                dto.Message = $"FixHavale cevabı (HTTP {responseResult.StatusCode}): {raw}";
+            }
+
             return result;
         }
 
-        private async Task<(JsonDocument Body, bool IsSuccessStatusCode)> SendAsync(string body)
+        private async Task<(JsonDocument Body, bool IsSuccessStatusCode, int StatusCode, string RawBody)> SendAsync(string body)
         {
             var settings = await _settingsV2Repository.GetSettingsAsync();
 
@@ -87,9 +99,19 @@ namespace Transactions.Infrastructure.Services.Concretes
             var responseBody = await response.Content.ReadAsStringAsync();
             JsonDocument json = null;
             if (!string.IsNullOrWhiteSpace(responseBody))
-                json = JsonDocument.Parse(responseBody);
+            {
+                try
+                {
+                    json = JsonDocument.Parse(responseBody);
+                }
+                catch (JsonException)
+                {
+                    // JSON olmayan cevap (ör. HTML hata sayfası): boş kabul edilir, ham cevap mesajda gösterilir
+                    json = null;
+                }
+            }
 
-            return (json ?? JsonDocument.Parse("{}"), response.IsSuccessStatusCode);
+            return (json ?? JsonDocument.Parse("{}"), response.IsSuccessStatusCode, (int)response.StatusCode, responseBody);
         }
 
         private static string Sign(string value, string secret)

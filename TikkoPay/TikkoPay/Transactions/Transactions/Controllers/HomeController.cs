@@ -222,11 +222,12 @@ namespace Transactions.Controllers
             {
                 havaleBankalariItem = await GetFluxFinansBankAccount(depositTransaction, settings, amount);
             }
-            else if (havaleBankalariItem.TedarikciId.Equals(settings.ViPayTedarikciId))
+            else if (havaleBankalariItem.TedarikciId == settings.ViPayTedarikciId || havaleBankalariItem.TedarikciId == settings.ViPayTedarikciId2)
             {
                 try
                 {
-                    havaleBankalariItem = await GetViPayBankAccount(depositTransaction, settings, amount);
+                    var viPayBankId = havaleBankalariItem.TedarikciId == settings.ViPayTedarikciId2 ? settings.ViPayDefaultFastHavaleBankId2 : settings.ViPayDefaultFastHavaleBankId;
+                    havaleBankalariItem = await GetViPayBankAccount(depositTransaction, viPayBankId, amount);
                 }
                 catch (Exception ex) when (ex.Message.Contains("no_bank_account_available") || ex.Message.Contains("deposit_already_finalized"))
                 {
@@ -301,13 +302,13 @@ namespace Transactions.Controllers
             };
         }
 
-        private async Task<AvailableHavaleBankItemDto> GetViPayBankAccount(DepositTransaction depositTransaction, Settings settings, decimal amount)
+        private async Task<AvailableHavaleBankItemDto> GetViPayBankAccount(DepositTransaction depositTransaction, Guid viPayBankId, decimal amount)
         {
             var bankAccount = await _viPayService.GetBankAccountAsync(depositTransaction, amount);
 
             return new AvailableHavaleBankItemDto
             {
-                Id = settings.ViPayDefaultFastHavaleBankId,
+                Id = viPayBankId,
                 HesapNo = bankAccount.data.iban,
                 HesapSahibi = bankAccount.data.account_holder,
                 AutoSupplierBankName = bankAccount.data.bank,

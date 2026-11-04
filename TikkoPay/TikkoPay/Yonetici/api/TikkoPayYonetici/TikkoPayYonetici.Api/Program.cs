@@ -127,7 +127,7 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddResponseCaching();
 
-//builder.Services.AddHostedService<MutabakatBackgroundService>();
+builder.Services.AddHostedService<MutabakatBackgroundService>();
 
 var app = builder.Build();
 

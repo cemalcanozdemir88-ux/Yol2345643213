@@ -37,7 +37,7 @@ namespace TikkoPayCallbacks.Infrastructure.Services.Concretes
 
         public async Task<ProcessResultModel> ProcessDeposit(ViPayCallbackRequest request, YatirimCekimTalepleri yatirimTalebi, Settings settings)
         {
-            if (yatirimTalebi.TedarikciId != settings.ViPayTedarikciId)
+            if (yatirimTalebi.TedarikciId != settings.ViPayTedarikciId && yatirimTalebi.TedarikciId != settings.ViPayTedarikciId2)
             {
                 return new ProcessResultModel
                 {
