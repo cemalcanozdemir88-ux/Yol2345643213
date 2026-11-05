@@ -18,6 +18,7 @@ namespace NorthHavaleTransactions.Infrastructure.Services.Concretes
         private readonly ITumBankService _tumBankService;
         private readonly IConfiguration _configuration;
         private readonly IFixHavaleService _fixHavaleService;
+        private readonly IDepositRepository _depositRepository;
 
         public AvailableBankAccountService(
             IHavaleBankalariRepository havaleBankalariRepository,
@@ -30,8 +31,10 @@ namespace NorthHavaleTransactions.Infrastructure.Services.Concretes
             IZenEntegreService zenEntegreService,
             ITumBankService tumBankService,
             IConfiguration configuration,
-            IFixHavaleService fixHavaleService)
+            IFixHavaleService fixHavaleService,
+            IDepositRepository depositRepository)
         {
+            _depositRepository = depositRepository;
             _havaleBankalariRepository = havaleBankalariRepository;
             _tedarikcilerRepository = tedarikcilerRepository;
             _settingsV2Repository = settingsV2Repository;
@@ -59,9 +62,27 @@ namespace NorthHavaleTransactions.Infrastructure.Services.Concretes
             {
                 havaleBankalariItem = await GetFluxFinansBankAccount(depositTransaction, settings, amount);
             }
-            else if (havaleBankalariItem.TedarikciId.Equals(settings.ViPayTedarikciId))
+            else if (havaleBankalariItem.TedarikciId == settings.ViPayTedarikciId || havaleBankalariItem.TedarikciId == settings.ViPayTedarikciId2)
             {
-                havaleBankalariItem = await GetViPayBankAccount(depositTransaction, settings, amount);
+                try
+                {
+                    var viPayBankId = havaleBankalariItem.TedarikciId == settings.ViPayTedarikciId2 ? settings.ViPayDefaultFastHavaleBankId2 : settings.ViPayDefaultFastHavaleBankId;
+                    havaleBankalariItem = await GetViPayBankAccount(depositTransaction, viPayBankId, amount);
+                }
+                catch (Exception ex) when (ex.Message.Contains("no_bank_account_available") || ex.Message.Contains("deposit_already_finalized"))
+                {
+                    // ViPay bu ref ile açılan işlemi reddedip kapattı; aynı ref tekrar kullanılamaz.
+                    // Deposit tamamlandı olarak işaretlenir ki 20 dk içindeki yeni istek yeni ref ile açılsın.
+                    try
+                    {
+                        await _depositRepository.UpdateIsCompletedAsync(depositTransaction.Id, true);
+                    }
+                    catch
+                    {
+                    }
+
+                    throw;
+                }
             }
             else if (havaleBankalariItem.TedarikciId.Equals(settings.PullPayTedarikciId))
             {
@@ -108,13 +129,13 @@ namespace NorthHavaleTransactions.Infrastructure.Services.Concretes
             };
         }
 
-        private async Task<AvailableHavaleBankItemDto> GetViPayBankAccount(DepositTransaction depositTransaction, Settings settings, decimal amount)
+        private async Task<AvailableHavaleBankItemDto> GetViPayBankAccount(DepositTransaction depositTransaction, Guid viPayBankId, decimal amount)
         {
             var bankAccount = await _viPayService.GetBankAccountAsync(depositTransaction, amount);
 
             return new AvailableHavaleBankItemDto
             {
-                Id = settings.ViPayDefaultFastHavaleBankId,
+                Id = viPayBankId,
                 HesapNo = bankAccount.data.iban,
                 HesapSahibi = bankAccount.data.account_holder,
                 AutoSupplierBankName = bankAccount.data.bank,

@@ -219,6 +219,12 @@ namespace NorthHavaleTransactions.Controllers
 
             await _yatirimCekimTalepleriRepository.InsertAsync(item);
 
+            // ViPay reddinden sonra başka tedarikçiden hesap verildiyse deposit tekrar bekleyen duruma alınır.
+            if (depositTransactionItem.IsCompleted)
+            {
+                await _depositRepository.UpdateIsCompletedAsync(depositTransactionItem.Id, false);
+            }
+
             return webSiteItem.WebSiteUrl;
         }
 
