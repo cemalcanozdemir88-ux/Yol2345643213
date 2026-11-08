@@ -66,8 +66,8 @@ namespace NorthHavaleTransactions.Infrastructure.Services.Concretes
             {
                 try
                 {
-                    var viPayBankId = havaleBankalariItem.TedarikciId == settings.ViPayTedarikciId2 ? settings.ViPayDefaultFastHavaleBankId2 : settings.ViPayDefaultFastHavaleBankId;
-                    havaleBankalariItem = await GetViPayBankAccount(depositTransaction, viPayBankId, amount);
+                    // IBAN ViPay'den gelir; kayıt, koşulları kullanılan (siteye bağlı/seçilen) hesaba yazılır.
+                    havaleBankalariItem = await GetViPayBankAccount(depositTransaction, havaleBankalariItem.Id, amount);
                 }
                 catch (Exception ex) when (ex.Message.Contains("no_bank_account_available") || ex.Message.Contains("deposit_already_finalized"))
                 {
@@ -102,7 +102,8 @@ namespace NorthHavaleTransactions.Infrastructure.Services.Concretes
             }
             else if (havaleBankalariItem.TedarikciId.Equals(settings.FixHavaleTedarikciId))
             {
-                havaleBankalariItem = await GetFixHavaleBankAccount(depositTransaction, settings, amount);
+                // IBAN FixHavale'den gelir; kayıt, koşulları kullanılan (siteye bağlı/seçilen) hesaba yazılır.
+                havaleBankalariItem = await GetFixHavaleBankAccount(depositTransaction, havaleBankalariItem.Id, amount);
             }
 
             havaleBankalariItem.Amount = amount.ToString("N2");
@@ -196,13 +197,13 @@ namespace NorthHavaleTransactions.Infrastructure.Services.Concretes
             };
         }
 
-        private async Task<AvailableHavaleBankItemDto> GetFixHavaleBankAccount(DepositTransaction depositTransaction, Settings settings, decimal amount)
+        private async Task<AvailableHavaleBankItemDto> GetFixHavaleBankAccount(DepositTransaction depositTransaction, Guid havaleBankaId, decimal amount)
         {
             var bankAccount = await _fixHavaleService.GetBankAccountAsync(depositTransaction, amount);
 
             return new AvailableHavaleBankItemDto
             {
-                Id = settings.FixHavaleDefaultFastHavaleBankId,
+                Id = havaleBankaId,
                 HesapNo = bankAccount.BankAccount.Iban,
                 HesapSahibi = bankAccount.BankAccount.AccountName,
                 AutoSupplierBankName = bankAccount.BankAccount.BankName,

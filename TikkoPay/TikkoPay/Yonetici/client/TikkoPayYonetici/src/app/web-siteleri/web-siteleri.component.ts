@@ -17,6 +17,10 @@ import { WebSiteTedarikcileriManualCreateDto } from '../_models/websitetedarikci
 import { WebSiteTedarikcileriManualListDto } from '../_models/websitetedarikcileriManual/webSiteTedarikcileriManualList.dto';
 import { PaymentMethodsDto } from '../_models/paymentMethods/paymentMethods.dto';
 import { PaymentMethodsService } from '../_services/paymentMethods.service';
+import { WebSiteHavaleBankalariService } from '../_services/websitehavalebankalari.service';
+import { WebSiteHavaleBankalariListDto } from '../_models/websitehavalebankalari/webSiteHavaleBankalari.dto';
+import { HavaleBankalariService } from '../_services/havalebankalari.service';
+import { HavaleBankalariListDto } from '../_models/havalebankalari/havalebankalariList.dto';
 
 @Component({
   selector: 'app-web-siteleri',
@@ -35,6 +39,17 @@ export class WebSiteleriComponent implements OnInit {
 
   @ViewChild('tedarikciManualModalButton') tedarikciManualModalButton!: ElementRef;
   @ViewChild('tedarikciManualModalKapatButton') tedarikciManualModalKapatButton!: ElementRef;
+
+  @ViewChild('hesapModalButton') hesapModalButton!: ElementRef;
+
+  // Web sitesine bağlı banka havale hesapları
+  webSiteHesaplari: WebSiteHavaleBankalariListDto[] = [];
+  hesapTedarikciId: string = '';
+  tedarikciHesaplari: HavaleBankalariListDto[] = [];
+  selectedHesapToAdd: string = '';
+  isLoadingHesaplar: boolean = false;
+  isAddingHesap: boolean = false;
+  deletingHesapId: string = '';
 
   webSiteleri: WebSiteleriListDto[] = [];
   webSiteleriCreateModel!: WebSiteleriCreateDto;
@@ -62,6 +77,8 @@ export class WebSiteleriComponent implements OnInit {
     private webSiteTedarikciService: WebSiteTedarikcileriService,
     private webSiteTedarikciManualService: WebSiteTedarikcileriManualService,
     private paymentMethodsSerivce: PaymentMethodsService,
+    private webSiteHavaleBankalariService: WebSiteHavaleBankalariService,
+    private havaleBankalariService: HavaleBankalariService,
     private alertify: AlertifyService) {
 
   }
@@ -425,6 +442,126 @@ export class WebSiteleriComponent implements OnInit {
         this.deletingTedarikciId = '';
       },
       complete: () => {
+      }
+    });
+  }
+
+  // ---------------- Web sitesi banka havale hesapları ----------------
+
+  openHesapModal(itemId: string) {
+    this.selectedItemId = itemId;
+    this.hesapTedarikciId = '';
+    this.tedarikciHesaplari = [];
+    this.selectedHesapToAdd = '';
+    this.webSiteHesaplari = [];
+
+    this.getTedarikciler();
+    this.getWebSiteHesaplari(itemId);
+
+    if (this.hesapModalButton && this.hesapModalButton.nativeElement) {
+      this.hesapModalButton.nativeElement.click();
+    }
+  }
+
+  getWebSiteHesaplari(webSiteId: string) {
+    this.isLoadingHesaplar = true;
+
+    this.webSiteHavaleBankalariService.getByWebSiteId(webSiteId).subscribe({
+      next: (response) => {
+        this.isLoadingHesaplar = false;
+        if (response.success) {
+          this.webSiteHesaplari = response.result ?? [];
+        } else {
+          this.alertify.error(response.message);
+        }
+      },
+      error: () => {
+        this.isLoadingHesaplar = false;
+        this.alertify.error('Hesaplar alınırken bir hata oluştu.');
+      }
+    });
+  }
+
+  onHesapTedarikciChange() {
+    this.selectedHesapToAdd = '';
+    this.tedarikciHesaplari = [];
+
+    if (!this.hesapTedarikciId) {
+      return;
+    }
+
+    this.havaleBankalariService.getByTedarikciId(this.hesapTedarikciId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.tedarikciHesaplari = response.result ?? [];
+        } else {
+          this.alertify.error(response.message);
+        }
+      },
+      error: () => {
+        this.alertify.error('Tedarikçinin hesapları alınırken bir hata oluştu.');
+      }
+    });
+  }
+
+  isHesapBagli(havaleBankaId: string): boolean {
+    return this.webSiteHesaplari.some(x => x.havaleBankaId === havaleBankaId);
+  }
+
+  addHesapToWebSite() {
+    if (!this.selectedHesapToAdd) {
+      this.alertify.error('Bir hesap seçin.');
+      return;
+    }
+    if (!this.selectedItemId) {
+      this.alertify.error('Bir website seçin.');
+      return;
+    }
+
+    this.isAddingHesap = true;
+
+    this.webSiteHavaleBankalariService.create({
+      webSiteId: this.selectedItemId,
+      havaleBankaId: this.selectedHesapToAdd
+    }).subscribe({
+      next: response => {
+        this.isAddingHesap = false;
+        if (response.success) {
+          this.alertify.success('Hesap web sitesine bağlandı');
+          this.selectedHesapToAdd = '';
+          this.getWebSiteHesaplari(this.selectedItemId);
+        } else {
+          this.alertify.error(response.message);
+        }
+      },
+      error: error => {
+        this.isAddingHesap = false;
+        this.alertify.error(error?.error?.message ?? 'Hesap bağlanırken hata oluştu.');
+      }
+    });
+  }
+
+  removeHesapFromWebSite(id: string) {
+    if (!confirm('Hesap bağlantısı silinecektir, devam etmek istiyor musunuz?')) {
+      return;
+    }
+
+    this.deletingHesapId = id;
+
+    this.webSiteHavaleBankalariService.delete(id).subscribe({
+      next: (response) => {
+        this.deletingHesapId = '';
+        this.getWebSiteHesaplari(this.selectedItemId);
+
+        if (response.success) {
+          this.alertify.success(response.message);
+        } else {
+          this.alertify.error(response.message);
+        }
+      },
+      error: () => {
+        this.deletingHesapId = '';
+        this.alertify.error('Hesap bağlantısı silinirken hata oluştu.');
       }
     });
   }

@@ -73,8 +73,11 @@
                       <button type="button" class="btn-info btn btn-xs mr-2" (click)="openTedarikciModal(item.id)">
                         Tedarikçiler
                       </button>
-                      <button type="button" class="btn-warning btn btn-xs" (click)="openTedarikciManualModal(item.id)">
+                      <button type="button" class="btn-warning btn btn-xs mr-2" (click)="openTedarikciManualModal(item.id)">
                         Tedarikçiler Manual
+                      </button>
+                      <button type="button" class="btn-success btn btn-xs" (click)="openHesapModal(item.id)">
+                        Hesaplar
                       </button>
                     </div>
                   </td>
@@ -470,6 +473,105 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-white" data-dismiss="modal" #tedarikciModalKapatButton (click)="closeTedarikciModal()">Kapat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Gizli tetikleyici (programatik açma) -->
+<button style="display:none" data-toggle="modal" data-target="#hesapModal" #hesapModalButton>Open</button>
+
+<!-- Web Sitesi Banka Havale Hesapları Modal -->
+<div class="modal inmodal fade" id="hesapModal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h4>Web Sitesi Banka Havale Hesapları</h4>
+
+        <div class="alert alert-info small">
+          Bir tedarikçinin hesabını bu siteye bağlarsanız, bu sitede o tedarikçinin <b>sadece bağlanan hesapları</b> kullanılır.
+          Hiç hesap bağlamazsanız, siteye bağlı tedarikçinin <b>tüm hesapları</b> kullanılır.
+          ViPay ve FixHavale'de IBAN tedarikçiden gelir; bağlanan hesabın <b>koşulları</b> (min/max tutar, limitler) geçerli olur.
+        </div>
+
+        <div class="row mb-3 align-items-end">
+          <div class="col-md-4">
+            <label>Tedarikçi</label>
+            <select class="form-control" [(ngModel)]="hesapTedarikciId" name="hesapTedarikciId" (change)="onHesapTedarikciChange()">
+              <option value="" disabled selected>Tedarikçi seçin</option>
+              <option *ngFor="let item of tedarikcilerDronDownModel" [value]="item.id">
+                {{ item.unvan }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-5">
+            <label>Hesap</label>
+            <select class="form-control" [(ngModel)]="selectedHesapToAdd" name="selectedHesapToAdd" [disabled]="!hesapTedarikciId">
+              <option value="" disabled selected>Hesap seçin</option>
+              <option *ngFor="let h of tedarikciHesaplari" [value]="h.id" [disabled]="isHesapBagli(h.id)">
+                {{ h.bankaAdi }} - {{ h.hesapSahibi }}
+                ({{ h.hesapMinTutar | number:'1.0-2' }} - {{ h.hesapMaxTutar | number:'1.0-2' }})
+                {{ h.durum ? '' : '[Pasif]' }}{{ isHesapBagli(h.id) ? ' [Bağlı]' : '' }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-primary btn-block" (click)="addHesapToWebSite()" [disabled]="isAddingHesap || !selectedHesapToAdd">
+              <i class="fa fa-spinner fa-spin fa-fw" *ngIf="isAddingHesap"></i> Ekle
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-sm table-striped">
+            <thead>
+              <tr>
+                <th>Tedarikçi</th>
+                <th>Banka</th>
+                <th>Hesap Sahibi</th>
+                <th>Min - Max</th>
+                <th>Durum</th>
+                <th class="text-right">İşlem</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="isLoadingHesaplar">
+                <td colspan="6">
+                  <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                  Hesaplar yükleniyor...
+                </td>
+              </tr>
+              <ng-container *ngIf="!isLoadingHesaplar">
+                <tr *ngFor="let h of webSiteHesaplari">
+                  <td>{{ h.tedarikciBaslik }}</td>
+                  <td>{{ h.bankaBaslik }}</td>
+                  <td>{{ h.hesapSahibi }}</td>
+                  <td>{{ h.hesapMinTutar | number:'1.0-2' }} - {{ h.hesapMaxTutar | number:'1.0-2' }}</td>
+                  <td>
+                    <span class="label label-primary" *ngIf="h.durum">Aktif</span>
+                    <span class="label label-danger" *ngIf="!h.durum">Pasif</span>
+                  </td>
+                  <td class="text-right">
+                    <button class="btn btn-danger btn-xs"
+                            (click)="removeHesapFromWebSite(h.id)"
+                            [disabled]="deletingHesapId === h.id">
+                      <i class="fa fa-spinner fa-spin fa-fw" *ngIf="deletingHesapId === h.id"></i>
+                      <span *ngIf="deletingHesapId !== h.id">Sil</span>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="!webSiteHesaplari || webSiteHesaplari.length === 0">
+                  <td colspan="6">Bu siteye hesap bağlanmamış. Siteye bağlı tedarikçilerin tüm hesapları kullanılır.</td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-white" data-dismiss="modal">Kapat</button>
       </div>
     </div>
   </div>

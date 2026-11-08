@@ -39,6 +39,7 @@ namespace TikkoPayYonetici.Infrastructure
             services.AddScoped<IKullaniciIpAdresleriRepository, KullaniciIpAdresleriRepository>();
             services.AddScoped<IWebSitePaymentMethodsRepository, WebSitePaymentMethodsRepository>();
             services.AddScoped<IWebSiteTedarikcileriRepository, WebSiteTedarikcileriRepository>();
+            services.AddScoped<IWebSiteHavaleBankalariRepository, WebSiteHavaleBankalariRepository>();
             services.AddScoped<IWebSiteTedarikcileriManualRepository, WebSiteTedarikcileriManualRepository>();
             services.AddScoped<ITedarikciMutabakatRepository, TedarikciMutabakatRepository>();
             services.AddScoped<IWebSiteMutabakatRepository, WebSiteMutabakatRepository>();

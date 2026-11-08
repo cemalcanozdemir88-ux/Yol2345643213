@@ -82,7 +82,7 @@ namespace NorthHavaleTransactions.Infrastructure.Repositories.Concretes
             parameters.Add("@bankaId", string.IsNullOrWhiteSpace(bankaId) ? null : bankaId);
 
             return await connection.QueryFirstOrDefaultAsync<AvailableHavaleBankItemDto>(
-                "GetAvailableHavaleBankItemDtoWithWebSite",
+                "GetAvailableHavaleBankItemDtoWithWebSiteV2",
                 parameters,
                 commandType: CommandType.StoredProcedure
             );

@@ -24,6 +24,7 @@ namespace TikkoPayYonetici.Services
             services.AddScoped<IFluxFinansService, FluxFinansService>();
             services.AddScoped<ITelegramBotService, TelegramBotService>();
             services.AddScoped<IWebSiteTedarikcileriService, WebSiteTedarikcileriService>();
+            services.AddScoped<IWebSiteHavaleBankalariService, WebSiteHavaleBankalariService>();
             services.AddScoped<IWebSiteTedarikcileriManualService, WebSiteTedarikcileriManualService>();
             services.AddScoped<IYatirimTalepleriManuelService, YatirimTalepleriManuelService>();
             services.AddScoped<IViPayService, ViPayService>();

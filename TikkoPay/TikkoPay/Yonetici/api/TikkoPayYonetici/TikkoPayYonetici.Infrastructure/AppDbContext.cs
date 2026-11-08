@@ -178,6 +178,7 @@ namespace TikkoPayYonetici.Infrastructure
         public DbSet<KullaniciLogin> KullaniciLogins { get; set; }
         public DbSet<KullaniciIpAdresleri> KullaniciIpAdresleri { get; set; }
         public DbSet<WebSiteTedarikcileri> WebSiteTedarikcileri { get; set; }
+        public DbSet<WebSiteHavaleBankalari> WebSiteHavaleBankalari { get; set; }
         public DbSet<WebSiteTedarikcileriManual> WebSiteTedarikcileriManual { get; set; }
         public DbSet<TedarikciMutabakatlari> TedarikciMutabakatlari { get; set; }
         public DbSet<WebSiteMutabakatlari> WebSiteMutabakatlari { get; set; }
