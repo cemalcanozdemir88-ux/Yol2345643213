@@ -44,12 +44,6 @@ namespace TikkoPayYonetici.Services.Concretes
 
         public async Task<ResponseViewModel<WebSiteMutabakatlariListDto>> Calculate(Guid webSiteId, decimal devir, DateOnly mutabakatTarihi)
         {
-            var webSiteMutabakat = _webSiteMutabakatRepository.Where(x => x.WebSiteId == webSiteId && x.MutabakatTarihi == mutabakatTarihi).FirstOrDefault();
-            if (webSiteMutabakat != null)
-            {
-                await _webSiteMutabakatRepository.RemoveFromDb(webSiteMutabakat.Id);
-            }
-
             devir = 0;
             var mutabakatTarihiPrevious = mutabakatTarihi.AddDays(-1);
             
@@ -68,7 +62,9 @@ namespace TikkoPayYonetici.Services.Concretes
 
             var kasa = devir + (yatirim - cekim + kasaHaraketiGiris - kasaHaraketiCikis);
 
-            await _webSiteMutabakatRepository.AddAsync(new WebSiteMutabakatlari
+            // Eski kayıt(lar)ı silip yenisini ekleme işlemi tek transaction içinde yapılır;
+            // aynı gün için asla iki kayıt oluşmaz.
+            var kaydedildi = await _webSiteMutabakatRepository.ReplaceForDateAsync(new WebSiteMutabakatlari
             {
                 Id = Guid.NewGuid(),
                 WebSiteId = webSiteId,
@@ -88,23 +84,19 @@ namespace TikkoPayYonetici.Services.Concretes
                 MutabakatTarihi = mutabakatTarihi
             });
 
-            var result = await _unitOfWork.SaveAsync();
-
-            if (result > 0)
-            {
-                return new ResponseViewModel<WebSiteMutabakatlariListDto>
-                {
-                    Success = true
-                };
-            }
-            else
+            if (!kaydedildi)
             {
                 return new ResponseViewModel<WebSiteMutabakatlariListDto>
                 {
                     Success = false,
-                    Message = "Hata oluştu, bir süre sonra tekrar deneyiniz."
+                    Message = "Bu gün için aynı anda başka bir mutabakat hesaplaması yapıldı, mevcut kayıt korundu. Gerekirse tekrar hesaplayınız."
                 };
             }
+
+            return new ResponseViewModel<WebSiteMutabakatlariListDto>
+            {
+                Success = true
+            };
         }
 
         private WebSiteMutabakatBakiyeModel GetBakiyeModel(Guid webSiteId, DateOnly mutabakatTarihi)

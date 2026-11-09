@@ -44,12 +44,6 @@ namespace TikkoPayYonetici.Services.Concretes
 
         public async Task<ResponseViewModel<TedarikciMutabakatlariListDto>> Calculate(Guid tedarikciId, decimal devir, DateOnly mutabakatTarihi)
         {
-            var tedarikciMutabakat = _tedarikciMutabakatRepository.Where(x => x.TedarikciId == tedarikciId && x.MutabakatTarihi == mutabakatTarihi).FirstOrDefault();
-            if (tedarikciMutabakat != null)
-            {
-                await _tedarikciMutabakatRepository.RemoveFromDb(tedarikciMutabakat.Id);
-            }
-
             devir = 0;
             var mutabakatTarihiPrevious = mutabakatTarihi.AddDays(-1);
             
@@ -68,7 +62,9 @@ namespace TikkoPayYonetici.Services.Concretes
 
             var kasa = devir + ((yatirimKomisyon + kasaHaraketiCikis) - (cekimKomisyon + kasaHaraketiGiris));
 
-            await _tedarikciMutabakatRepository.AddAsync(new TedarikciMutabakatlari
+            // Eski kayıt(lar)ı silip yenisini ekleme işlemi tek transaction içinde yapılır;
+            // aynı gün için asla iki kayıt oluşmaz.
+            var kaydedildi = await _tedarikciMutabakatRepository.ReplaceForDateAsync(new TedarikciMutabakatlari
             {
                 Id = Guid.NewGuid(),
                 TedarikciId = tedarikciId,
@@ -88,23 +84,19 @@ namespace TikkoPayYonetici.Services.Concretes
                 MutabakatTarihi = mutabakatTarihi
             });
 
-            var result = await _unitOfWork.SaveAsync();
-
-            if (result > 0)
-            {
-                return new ResponseViewModel<TedarikciMutabakatlariListDto>
-                {
-                    Success = true
-                };
-            }
-            else
+            if (!kaydedildi)
             {
                 return new ResponseViewModel<TedarikciMutabakatlariListDto>
                 {
                     Success = false,
-                    Message = "Hata oluştu, bir süre sonra tekrar deneyiniz."
+                    Message = "Bu gün için aynı anda başka bir mutabakat hesaplaması yapıldı, mevcut kayıt korundu. Gerekirse tekrar hesaplayınız."
                 };
             }
+
+            return new ResponseViewModel<TedarikciMutabakatlariListDto>
+            {
+                Success = true
+            };
         }
 
         public decimal GetDevir(Guid tedarikciId, DateOnly mutabakatTarihi)

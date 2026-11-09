@@ -7,5 +7,6 @@ namespace TikkoPayYonetici.Core.Interfaces
     {
         Task<IEnumerable<TedarikciMutabakatlariListDto>> GetAllDtoAsync(Guid? tedarikciId, DateOnly mutabakatTarihi);
         Task RemoveFromDb(Guid id);
+        Task<bool> ReplaceForDateAsync(TedarikciMutabakatlari entity);
     }
 }
