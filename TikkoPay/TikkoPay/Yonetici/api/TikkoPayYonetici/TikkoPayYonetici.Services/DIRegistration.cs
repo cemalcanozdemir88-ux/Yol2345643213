@@ -37,6 +37,7 @@ namespace TikkoPayYonetici.Services
             services.AddScoped<IWebSitePaymentMethodService, WebSitePaymentMethodService>();
             services.AddScoped<IPaymentMethodsService, PaymentMethodsService>();
             services.AddScoped<IFixHavaleService, FixHavaleService>();
+            services.AddScoped<IBlueParaService, BlueParaService>();
 
             return services;
         }

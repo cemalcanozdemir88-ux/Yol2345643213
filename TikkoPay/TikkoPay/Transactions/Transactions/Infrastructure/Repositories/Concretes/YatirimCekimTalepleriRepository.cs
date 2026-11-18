@@ -211,6 +211,7 @@ namespace Transactions.Infrastructure.Repositories.Concretes
                                 WebSiteId = @WebSiteId and 
                                 WebSiteTransactionId = @WebSiteTransactionId and 
                                 SilindiMi = 0
+                            order by KayitTarihi desc
                             ";
 
             var parameters = new DynamicParameters();

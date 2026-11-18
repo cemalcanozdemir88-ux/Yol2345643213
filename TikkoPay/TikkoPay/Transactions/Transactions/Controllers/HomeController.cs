@@ -26,6 +26,7 @@ namespace Transactions.Controllers
         private readonly ITumBankService _tumBankService;
         private readonly ISettingsV2Repository _settingsV2Repository;
         private readonly IFixHavaleService _fixHavaleService;
+        private readonly IBlueParaService _blueParaService;
 
         public HomeController(IConfiguration configuration,
                               IDepositRepository depositRepository,
@@ -40,7 +41,8 @@ namespace Transactions.Controllers
                               IZenEntegreService zenEntegreService,
                               ITumBankService tumBankService,
                               ISettingsV2Repository settingsV2Repository,
-                              IFixHavaleService fixHavaleService)
+                              IFixHavaleService fixHavaleService,
+                              IBlueParaService blueParaService)
         {
             _configuration = configuration;
             _depositRepository = depositRepository;
@@ -56,6 +58,7 @@ namespace Transactions.Controllers
             _tumBankService = tumBankService;
             _settingsV2Repository = settingsV2Repository;
             _fixHavaleService = fixHavaleService;
+            _blueParaService = blueParaService;
         }
 
         [FixDuplicateTransactionFilter]
@@ -265,6 +268,11 @@ namespace Transactions.Controllers
                 // IBAN FixHavale'den gelir; kayıt, koşulları kullanılan (siteye bağlı/seçilen) hesaba yazılır.
                 havaleBankalariItem = await GetFixHavaleBankAccount(depositTransaction, havaleBankalariItem.Id, amount);
             }
+            else if (settings.BlueParaTedarikciId != Guid.Empty && havaleBankalariItem.TedarikciId.Equals(settings.BlueParaTedarikciId))
+            {
+                // IBAN BluePara'dan gelir; kayıt, koşulları kullanılan (siteye bağlı/seçilen) hesaba yazılır.
+                havaleBankalariItem = await GetBlueParaBankAccount(depositTransaction, havaleBankalariItem.Id, amount);
+            }
 
             havaleBankalariItem.Amount = amount.ToString("N2");
             havaleBankalariItem.TimeLeft = GetTransasctionTimeLeftInSeconds(depositTransaction.KayitTarihi);
@@ -315,6 +323,33 @@ namespace Transactions.Controllers
                 AutoSupplierBankName = bankAccount.data.bank,
                 IsAutoSupplierBankAccount = true,
             };
+        }
+
+        private async Task<AvailableHavaleBankItemDto> GetBlueParaBankAccount(DepositTransaction depositTransaction, Guid havaleBankaId, decimal amount)
+        {
+            try
+            {
+                var response = await _blueParaService.GetBankAccountAsync(depositTransaction, amount);
+                if (string.IsNullOrWhiteSpace(response?.bankAccount?.iban))
+                {
+                    throw new Exception("BluePara hesap bilgisi döndürmedi.");
+                }
+
+                return new AvailableHavaleBankItemDto
+                {
+                    Id = havaleBankaId,
+                    HesapNo = response.bankAccount.iban,
+                    HesapSahibi = response.bankAccount.accountHolderName,
+                    AutoSupplierBankName = response.bankAccount.bankName,
+                    IsAutoSupplierBankAccount = true,
+                };
+            }
+            catch (Exception exp)
+            {
+
+                throw;
+            }
+           
         }
 
         private async Task<AvailableHavaleBankItemDto> GetFixHavaleBankAccount(DepositTransaction depositTransaction, Guid havaleBankaId, decimal amount)

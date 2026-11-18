@@ -33,6 +33,7 @@ namespace TikkoPayYonetici.Services.Concretes
         private readonly IZenService _zenService;
         private readonly ITumBankService _tumBankService;
         private readonly IFixHavaleService _fixHavaleService;
+        private readonly IBlueParaService _blueParaService;
         private readonly ISettingsV2Repository _settingsV2Repository;
 
         public CekimTalepleriService(IMapper mapper,
@@ -51,6 +52,7 @@ namespace TikkoPayYonetici.Services.Concretes
             IZenService zenService,
             ITumBankService tumBankService,
             IFixHavaleService fixHavaleService,
+            IBlueParaService blueParaService,
             ISettingsV2Repository settingsV2Repository)
         {
             _mapper = mapper;
@@ -69,6 +71,7 @@ namespace TikkoPayYonetici.Services.Concretes
             _zenService = zenService;
             _tumBankService = tumBankService;
             _fixHavaleService = fixHavaleService;
+            _blueParaService = blueParaService;
             _settingsV2Repository = settingsV2Repository;
         }
 
@@ -514,6 +517,18 @@ namespace TikkoPayYonetici.Services.Concretes
                         };
                     }
                 }
+                else if (settings.BlueParaTedarikciId != Guid.Empty && tedarikciId.Equals(settings.BlueParaTedarikciId))
+                {
+                    var serviceResponse = await _blueParaService.SendWithdrawAsync(dbItem);
+                    if (!serviceResponse.IsSuccess)
+                    {
+                        return new ResponseViewModel<CekimTalepleriListDto>
+                        {
+                            Message = $"Çekim talebi tedarikçiye yönlendirilirken hata oluştu! {serviceResponse.Message}",
+                            Success = false
+                        };
+                    }
+                }
             }
             else
             {
@@ -617,6 +632,18 @@ namespace TikkoPayYonetici.Services.Concretes
                     else if (tedarikciWithAmountItem.TedarikciId.Equals(settings.FixHavaleTedarikciId))
                     {
                         var serviceResponse = await _fixHavaleService.SendWithdrawAsync(newItem);
+                        if (!serviceResponse.IsSuccess)
+                        {
+                            return new ResponseViewModel<CekimTalepleriListDto>
+                            {
+                                Message = $"Çekim talebi tedarikçiye yönlendirilirken hata oluştu! {serviceResponse.Message}",
+                                Success = false
+                            };
+                        }
+                    }
+                    else if (settings.BlueParaTedarikciId != Guid.Empty && tedarikciWithAmountItem.TedarikciId.Equals(settings.BlueParaTedarikciId))
+                    {
+                        var serviceResponse = await _blueParaService.SendWithdrawAsync(newItem);
                         if (!serviceResponse.IsSuccess)
                         {
                             return new ResponseViewModel<CekimTalepleriListDto>

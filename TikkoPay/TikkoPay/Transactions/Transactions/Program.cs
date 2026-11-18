@@ -67,6 +67,7 @@ namespace Transactions
             builder.Services.AddScoped<IZenEntegreService, ZenEntegreService>();
             builder.Services.AddScoped<ITumBankService, TumBankService>();
             builder.Services.AddScoped<IFixHavaleService, FixHavaleService>();
+            builder.Services.AddScoped<IBlueParaService, BlueParaService>();
 
             builder.Services.AddHttpClient();
 

@@ -55,6 +55,10 @@ namespace TikkoPayCallbacks
             builder.Services.AddScoped<IFixHavaleDepositCallbackService, FixHavaleDepositCallbackService>();
             builder.Services.AddScoped<IFixHavaleWithdrawCallbackService, FixHavaleWithdrawCallbackService>();
 
+            builder.Services.AddScoped<IBlueParaApiClient, BlueParaApiClient>();
+            builder.Services.AddScoped<IBlueParaDepositCallbackService, BlueParaDepositCallbackService>();
+            builder.Services.AddScoped<IBlueParaWithdrawCallbackService, BlueParaWithdrawCallbackService>();
+
             builder.Services.AddHttpClient();
 
             builder.Services.AddHostedService<TedarikciHesapListTask>();

@@ -62,5 +62,13 @@
         public string FixHavaleApiKey { get; set; }
         public string FixHavaleApiSecret { get; set; }
         public string FixHavaleWithdrawUrl { get; set; }
+
+        public Guid BlueParaTedarikciId { get; set; }
+        public Guid BlueParaDefaultFastHavaleBankId { get; set; }
+        public string BlueParaBaseUrl { get; set; }
+        public string BlueParaApiKey { get; set; }
+        public string BlueParaMerchantKey { get; set; }
+        public string BlueParaProviderKey { get; set; }
+        public string BlueParaCallbackUrl { get; set; }
     }
 }

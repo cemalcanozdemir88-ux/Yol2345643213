@@ -724,6 +724,7 @@ namespace TikkoPayYonetici.Services.Concretes
                 settings.ZenEntegreTedarikciId,
                 settings.TumBankTedarikciId,
                 settings.FixHavaleTedarikciId,
+                settings.BlueParaTedarikciId,
             };
 
             return tedarikciId != Guid.Empty && apiliTedarikciler.Contains(tedarikciId);

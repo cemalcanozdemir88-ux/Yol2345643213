@@ -43,6 +43,11 @@ namespace TikkoPayYonetici.Api.Jobs
                 {
                     break;
                 }
+                catch (Exception ex)
+                {
+                    // Beklenmeyen bir hata job'u tamamen durdurmasın; ertesi gece yine çalışsın.
+                    WriteMutabakatLog($"Mutabakat job'u hata verdi: {ex}");
+                }
             }
         }
 
@@ -54,68 +59,121 @@ namespace TikkoPayYonetici.Api.Jobs
 
         private async Task CalculateWebSiteMutabakat()
         {
-            using var scope = _serviceProvider.CreateScope();
-
-            var _webSiteMutabakatService = scope.ServiceProvider.GetRequiredService<IWebSiteMutabakatService>();
-            var _webSiteleri = scope.ServiceProvider.GetRequiredService<IWebSiteleriService>();
-            var _telegramBotService = scope.ServiceProvider.GetRequiredService<ITelegramBotService>();
-
-            var webSiteleri = await _webSiteleri.GetAllAsync(null);
-            foreach (var webSite in webSiteleri.Result)
+            List<WebSiteleriListDto> webSiteleri;
+            using (var listScope = _serviceProvider.CreateScope())
             {
-                try
-                {
-                    var now = DateTime.Now;
-                    DateOnly mutabakatTarihi = DateOnly.FromDateTime(now.AddDays(-1));
-                    DateOnly mutabakatTarihiPrevious = DateOnly.FromDateTime(now.AddDays(-2));
+                var webSiteleriService = listScope.ServiceProvider.GetRequiredService<IWebSiteleriService>();
+                webSiteleri = (await webSiteleriService.GetAllAsync(null)).Result?.ToList() ?? new();
+            }
 
-                    decimal devir = 0;
-                    var previousMutabakat = await _webSiteMutabakatService.GetAllDtoAsync(webSite.Id, mutabakatTarihiPrevious);
-                    if (previousMutabakat.Success && previousMutabakat.Result.Any())
+            // Tarih döngüden önce bir kez belirlenir; tüm siteler aynı gün için hesaplanır.
+            DateOnly mutabakatTarihi = DateOnly.FromDateTime(DateTime.Now.AddDays(-1));
+
+            foreach (var webSite in webSiteleri)
+            {
+                // Bir sitede hata olursa kaybolmasın diye 3 kez denenir.
+                var hesaplandi = false;
+                for (var deneme = 1; deneme <= 3; deneme++)
+                {
+                    try
                     {
-                        devir = previousMutabakat.Result.First().Kasa;
+                        // Her site kendi temiz veritabanı bağlantısıyla hesaplanır; birinin hatası sıradakine bulaşmaz.
+                        using var scope = _serviceProvider.CreateScope();
+                        var webSiteMutabakatService = scope.ServiceProvider.GetRequiredService<IWebSiteMutabakatService>();
+
+                        // Devir, Calculate içinde bir önceki günün kaydından alınır.
+                        var sonuc = await webSiteMutabakatService.Calculate(webSite.Id, 0, mutabakatTarihi);
+                        if (sonuc.Success)
+                        {
+                            hesaplandi = true;
+                            break;
+                        }
+
+                        WriteMutabakatLog($"WebSite: {webSite.Baslik} ({webSite.Id}) - Tarih: {mutabakatTarihi:yyyy-MM-dd} - Deneme {deneme} başarısız: {sonuc.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteMutabakatLog($"WebSite: {webSite.Baslik} ({webSite.Id}) - Tarih: {mutabakatTarihi:yyyy-MM-dd} - Deneme {deneme} HATA: {ex}");
                     }
 
-                    await _webSiteMutabakatService.Calculate(webSite.Id, devir, mutabakatTarihi);
-
-                    await SendTelegramMessageForWebSite(webSite, mutabakatTarihi, _webSiteMutabakatService, _telegramBotService);
+                    if (deneme < 3)
+                        await Task.Delay(TimeSpan.FromSeconds(10));
                 }
-                catch 
-                {
 
+                if (!hesaplandi)
+                    continue;
+
+                // Telegram hatası hesaplamayı tekrarlatmasın diye ayrı tutulur (mesaj iki kez gitmesin).
+                try
+                {
+                    using var scope = _serviceProvider.CreateScope();
+                    var webSiteMutabakatService = scope.ServiceProvider.GetRequiredService<IWebSiteMutabakatService>();
+                    var telegramBotService = scope.ServiceProvider.GetRequiredService<ITelegramBotService>();
+                    await SendTelegramMessageForWebSite(webSite, mutabakatTarihi, webSiteMutabakatService, telegramBotService);
+                }
+                catch (Exception ex)
+                {
+                    WriteMutabakatLog($"WebSite: {webSite.Baslik} ({webSite.Id}) - Tarih: {mutabakatTarihi:yyyy-MM-dd} - Telegram mesajı gönderilemedi: {ex}");
                 }
             }
         }
 
         private async Task CalculateTedarikciMutabakat()
         {
-            using var scope = _serviceProvider.CreateScope();
-
-            var _tedarikciMutabakatService = scope.ServiceProvider.GetRequiredService<ITedarikciMutabakatService>();
-            var _tedarikcilerService = scope.ServiceProvider.GetRequiredService<ITedarikciService>();
-
-            var tedarikciler = await _tedarikcilerService.GetAll();
-            foreach (var tedarikci in tedarikciler.Result)
+            List<Core.DTOs.Tedarikciler.TedarikcilerListDto> tedarikciler;
+            using (var listScope = _serviceProvider.CreateScope())
             {
-                try
-                {
-                    var now = DateTime.Now;
-                    DateOnly mutabakatTarihi = DateOnly.FromDateTime(now.AddDays(-1));
-                    DateOnly mutabakatTarihiPrevious = DateOnly.FromDateTime(now.AddDays(-2));
+                var tedarikcilerService = listScope.ServiceProvider.GetRequiredService<ITedarikciService>();
+                tedarikciler = (await tedarikcilerService.GetAll()).Result ?? new();
+            }
 
-                    decimal devir = 0;
-                    var previousMutabakat = await _tedarikciMutabakatService.GetAllDtoAsync(tedarikci.Id, mutabakatTarihiPrevious);
-                    if (previousMutabakat.Success && previousMutabakat.Result.Any())
+            // Tarih döngüden önce bir kez belirlenir; tüm tedarikçiler aynı gün için hesaplanır.
+            DateOnly mutabakatTarihi = DateOnly.FromDateTime(DateTime.Now.AddDays(-1));
+
+            foreach (var tedarikci in tedarikciler)
+            {
+                // Bir tedarikçide hata olursa kaybolmasın diye 3 kez denenir.
+                for (var deneme = 1; deneme <= 3; deneme++)
+                {
+                    try
                     {
-                        devir = previousMutabakat.Result.First().Kasa;
+                        // Her tedarikçi kendi temiz veritabanı bağlantısıyla hesaplanır; birinin hatası
+                        // (yarım kalmış kayıt vb.) sıradaki tedarikçiye bulaşmaz.
+                        using var scope = _serviceProvider.CreateScope();
+                        var tedarikciMutabakatService = scope.ServiceProvider.GetRequiredService<ITedarikciMutabakatService>();
+
+                        // Devir, Calculate içinde bir önceki günün kaydından alınır.
+                        var sonuc = await tedarikciMutabakatService.Calculate(tedarikci.Id, 0, mutabakatTarihi);
+                        if (sonuc.Success)
+                            break;
+
+                        WriteMutabakatLog($"Tedarikçi: {tedarikci.Unvan} ({tedarikci.Id}) - Tarih: {mutabakatTarihi:yyyy-MM-dd} - Deneme {deneme} başarısız: {sonuc.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        WriteMutabakatLog($"Tedarikçi: {tedarikci.Unvan} ({tedarikci.Id}) - Tarih: {mutabakatTarihi:yyyy-MM-dd} - Deneme {deneme} HATA: {ex}");
                     }
 
-                    await _tedarikciMutabakatService.Calculate(tedarikci.Id, devir, mutabakatTarihi);
-                }
-                catch
-                {
+                    if (deneme < 3)
+                        await Task.Delay(TimeSpan.FromSeconds(10));
                 }
             }
+        }
+
+        // Hatalar eskiden sessizce yutuluyordu; artık logs/mutabakat klasörüne günlük dosyaya yazılır.
+        private void WriteMutabakatLog(string message)
+        {
+            try
+            {
+                var dir = Path.Combine(AppContext.BaseDirectory, "logs", "mutabakat");
+                Directory.CreateDirectory(dir);
+                File.AppendAllText(Path.Combine(dir, $"{DateTime.Now:yyyy-MM-dd}.txt"), $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {message}{Environment.NewLine}{Environment.NewLine}", Encoding.UTF8);
+            }
+            catch
+            {
+            }
+
+            _logger.LogError("{Message}", message);
         }
 
         private async Task SendTelegramMessageForWebSite(WebSiteleriListDto webSite, DateOnly mutabakatTarihi, IWebSiteMutabakatService webSiteMutabakatService, ITelegramBotService telegramBotService)

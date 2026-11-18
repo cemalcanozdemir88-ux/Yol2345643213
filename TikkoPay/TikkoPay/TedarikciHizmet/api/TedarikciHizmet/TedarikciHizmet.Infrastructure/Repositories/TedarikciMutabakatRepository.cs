@@ -33,14 +33,18 @@ namespace TedarikciHizmet.Infrastructure.Repositories
                 .Where(m => m.MutabakatTarihi == mutabakatTarihi && tedarikciIds.Contains(m.TedarikciId))
                 .ToListAsync();
 
-            var previousKasalar = await _dbSet
+            var previousMutabakatlar = await _dbSet
                 .Where(m => m.MutabakatTarihi == oncekiGun && tedarikciIds.Contains(m.TedarikciId))
-                .ToDictionaryAsync(x => x.TedarikciId, x => x.Kasa);
+                .ToListAsync();
+            // Aynı güne birden fazla kayıt varsa en son kaydedileni kullan (çift kayıt sayfayı/hesabı bozmasın)
+            var previousKasalar = previousMutabakatlar
+                .GroupBy(x => x.TedarikciId)
+                .ToDictionary(g => g.Key, g => g.OrderByDescending(x => x.KayitTarihi).First().Kasa);
 
             var result = tedarikciler
                 .Select(t =>
                 {
-                    var m = mutabakatlar.FirstOrDefault(x => x.TedarikciId == t.Id);
+                    var m = mutabakatlar.Where(x => x.TedarikciId == t.Id).OrderByDescending(x => x.KayitTarihi).FirstOrDefault();
 
                     decimal devir = (m != null && m.Devir != 0)
                         ? m.Devir

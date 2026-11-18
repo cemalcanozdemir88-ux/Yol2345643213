@@ -31,6 +31,7 @@ namespace Transactions.Controllers
         private readonly IZenEntegreService _zenEntegreService;
         private readonly ITumBankService _tumBankService;
         private readonly IFixHavaleService _fixHavaleService;
+        private readonly IBlueParaService _blueParaService;
 
         public InternalDepositController(IConfiguration configuration,
                                          IDepositRepository depositRepository,
@@ -42,7 +43,8 @@ namespace Transactions.Controllers
                                          IParoPayService paroPayService,
                                          IZenEntegreService zenEntegreService,
                                          ITumBankService tumBankService,
-                                         IFixHavaleService fixHavaleService)
+                                         IFixHavaleService fixHavaleService,
+                                         IBlueParaService blueParaService)
         {
             _configuration = configuration;
             _depositRepository = depositRepository;
@@ -55,6 +57,7 @@ namespace Transactions.Controllers
             _zenEntegreService = zenEntegreService;
             _tumBankService = tumBankService;
             _fixHavaleService = fixHavaleService;
+            _blueParaService = blueParaService;
         }
 
         [HttpPost("send-to-supplier")]
@@ -143,6 +146,12 @@ namespace Transactions.Controllers
                 if (!string.IsNullOrWhiteSpace(r?.DetectedIp))
                     message = $"{message} (tedarikçinin gördüğü IP: {r.DetectedIp})";
                 return Build(settings.FixHavaleDefaultFastHavaleBankId, r?.BankAccount?.Iban, r?.BankAccount?.AccountName, r?.BankAccount?.BankName, message);
+            }
+            if (settings.BlueParaTedarikciId != Guid.Empty && tedarikciId.Equals(settings.BlueParaTedarikciId))
+            {
+                var r = await _blueParaService.GetBankAccountAsync(depositTransaction, amount);
+                var a = r?.bankAccount;
+                return Build(settings.BlueParaDefaultFastHavaleBankId, a?.iban, a?.accountHolderName, a?.bankName, r?.message);
             }
 
             return null;

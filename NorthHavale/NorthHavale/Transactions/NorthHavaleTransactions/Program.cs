@@ -68,6 +68,7 @@ namespace NorthHavaleTransactions
             builder.Services.AddScoped<ITumBankService, TumBankService>();
             builder.Services.AddScoped<IAvailableBankAccountService, AvailableBankAccountService>();
             builder.Services.AddScoped<IFixHavaleService, FixHavaleService>();
+            builder.Services.AddScoped<IBlueParaService, BlueParaService>();
 
             builder.Services.AddHttpClient();
 

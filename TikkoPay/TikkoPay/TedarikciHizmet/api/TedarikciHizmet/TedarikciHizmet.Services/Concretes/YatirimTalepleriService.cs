@@ -281,8 +281,12 @@ namespace TedarikciHizmet.Services.Concretes
             StringContent stringContent = new(serializerdItem, Encoding.UTF8, "application/json");
 
             var response = await _httpClient.PostAsync(depositCallbackUrl, stringContent);
-            var statusCode = response.IsSuccessStatusCode;
             var content = await response.Content.ReadAsStringAsync();
+
+            // Site hata kodu dönerse (cevap gövdesi boş olsa bile) bunu kayda yaz; aksi halde
+            // WebSiteCallBackResult boş kalıyor ve bildirimin siteye ulaşmadığı fark edilmiyor.
+            if (!response.IsSuccessStatusCode)
+                return $"HTTP {(int)response.StatusCode} {response.ReasonPhrase}: {content}";
 
             return content;
         }

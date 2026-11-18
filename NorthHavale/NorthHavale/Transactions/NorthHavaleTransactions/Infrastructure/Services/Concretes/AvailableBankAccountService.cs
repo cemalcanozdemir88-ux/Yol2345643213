@@ -19,6 +19,7 @@ namespace NorthHavaleTransactions.Infrastructure.Services.Concretes
         private readonly IConfiguration _configuration;
         private readonly IFixHavaleService _fixHavaleService;
         private readonly IDepositRepository _depositRepository;
+        private readonly IBlueParaService _blueParaService;
 
         public AvailableBankAccountService(
             IHavaleBankalariRepository havaleBankalariRepository,
@@ -32,9 +33,11 @@ namespace NorthHavaleTransactions.Infrastructure.Services.Concretes
             ITumBankService tumBankService,
             IConfiguration configuration,
             IFixHavaleService fixHavaleService,
-            IDepositRepository depositRepository)
+            IDepositRepository depositRepository,
+            IBlueParaService blueParaService)
         {
             _depositRepository = depositRepository;
+            _blueParaService = blueParaService;
             _havaleBankalariRepository = havaleBankalariRepository;
             _tedarikcilerRepository = tedarikcilerRepository;
             _settingsV2Repository = settingsV2Repository;
@@ -104,6 +107,11 @@ namespace NorthHavaleTransactions.Infrastructure.Services.Concretes
             {
                 // IBAN FixHavale'den gelir; kayıt, koşulları kullanılan (siteye bağlı/seçilen) hesaba yazılır.
                 havaleBankalariItem = await GetFixHavaleBankAccount(depositTransaction, havaleBankalariItem.Id, amount);
+            }
+            else if (settings.BlueParaTedarikciId != Guid.Empty && havaleBankalariItem.TedarikciId.Equals(settings.BlueParaTedarikciId))
+            {
+                // IBAN BluePara'dan gelir; kayıt, koşulları kullanılan (siteye bağlı/seçilen) hesaba yazılır.
+                havaleBankalariItem = await GetBlueParaBankAccount(depositTransaction, havaleBankalariItem.Id, amount);
             }
 
             havaleBankalariItem.Amount = amount.ToString("N2");
@@ -193,6 +201,24 @@ namespace NorthHavaleTransactions.Infrastructure.Services.Concretes
                 HesapNo = bankAccount.Data.Iban,
                 HesapSahibi = bankAccount.Data.AccountHolder,
                 AutoSupplierBankName = bankAccount.Data.BankName,
+                IsAutoSupplierBankAccount = true,
+            };
+        }
+
+        private async Task<AvailableHavaleBankItemDto> GetBlueParaBankAccount(DepositTransaction depositTransaction, Guid havaleBankaId, decimal amount)
+        {
+            var response = await _blueParaService.GetBankAccountAsync(depositTransaction, amount);
+            if (string.IsNullOrWhiteSpace(response?.bankAccount?.iban))
+            {
+                throw new Exception("BluePara hesap bilgisi döndürmedi.");
+            }
+
+            return new AvailableHavaleBankItemDto
+            {
+                Id = havaleBankaId,
+                HesapNo = response.bankAccount.iban,
+                HesapSahibi = response.bankAccount.accountHolderName,
+                AutoSupplierBankName = response.bankAccount.bankName,
                 IsAutoSupplierBankAccount = true,
             };
         }
